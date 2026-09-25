@@ -1,0 +1,32 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django development environment artifacts
+db.sqlite3
+db.sqlite3-journal
+media/
+staticfiles/
+
+# Local configuration files
+.env
+.env.local
+.venv/
+env/
+myenv/
+
+# IDE files (VS Code / PyCharm)
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Ignore all Django migration files
+**/migrations/00*.py
+**/migrations/__pycache__/
+
+# Do NOT ignore the __init__.py files (Django needs these to recognize migration folders)
+!**/migrations/__init__.py

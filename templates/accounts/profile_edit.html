@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Edit Profile | BookNest{% endblock %}
+
+{% block content %}
+<section class="page-header py-5 mb-4" style="background: #F5EDE4;">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'accounts:profile' %}">My Account</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Edit Profile</li>
+            </ol>
+        </nav>
+        <h1 class="display-6 fw-bold mb-1">Edit Profile</h1>
+        <p class="text-muted mb-0">Update your personal information and saved address</p>
+    </div>
+</section>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-10 col-xl-8">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center gap-4 mb-5 pb-4" style="border-bottom: 1px solid #EFEBE9;">
+                        {% if user.profile_picture %}
+                            <img id="avatar-preview" src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="rounded-circle shadow-sm" style="width: 96px; height: 96px; object-fit: cover;">
+                        {% else %}
+                            <span id="avatar-placeholder" class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold shadow-sm" style="width: 96px; height: 96px; font-size: 2.5rem;">
+                                {{ user.get_full_name|default:user.username|first|upper }}
+                            </span>
+                        {% endif %}
+                        <div>
+                            <h3 class="h4 fw-bold mb-1">{{ user.get_full_name|default:user.username }}</h3>
+                            <p class="text-muted mb-0">{{ user.email }}</p>
+                            <small class="text-secondary">Member since {{ user.date_joined|date:"F Y" }}</small>
+                        </div>
+                    </div>
+
+                    <form method="POST" enctype="multipart/form-data" novalidate>
+                        {% csrf_token %}
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                {{ form.first_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.last_name|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.username|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.email|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.phone|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.profile_picture|as_crispy_field }}
+                            </div>
+                            <div class="col-12">
+                                {{ form.address|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.city|as_crispy_field }}
+                            </div>
+                            <div class="col-md-6">
+                                {{ form.postcode|as_crispy_field }}
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-3 mt-5 pt-3">
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-secondary rounded-pill px-5 py-2 fw-medium">
+                                Cancel
+                            </a>
+                            <button type="submit" class="btn btn-primary rounded-pill px-5 py-2 fw-medium">
+                                <i class="fas fa-save me-2"></i> Save Changes
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Books | {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header bg-light py-5 mb-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                {% if category %}
+                <li class="breadcrumb-item"><a href="{% url 'books:book_list' %}">Books</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'books:category_list' %}">Categories</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+                {% elif author %}
+                <li class="breadcrumb-item"><a href="{% url 'books:book_list' %}">Books</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'books:author_list' %}">Authors</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ author.name }}</li>
+                {% else %}
+                <li class="breadcrumb-item active" aria-current="page">Books</li>
+                {% endif %}
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold">
+            {% if category %}{{ category.name }}{% elif author %}{{ author.name }}{% elif filter_type == 'bestsellers' %}Bestsellers{% elif filter_type == 'new' %}New Arrivals{% else %}Books{% endif %}
+        </h1>
+        {% if category and category.description %}
+        <p class="lead text-muted mt-2">{{ category.description }}</p>
+        {% elif author and author.biography %}
+        <p class="lead text-muted mt-2">{{ author.biography|truncatewords:30 }}</p>
+        {% endif %}
+    </div>
+</section>
+
+<div class="container">
+    <div class="row g-4">
+        <aside class="col-12 col-lg-3">
+            <div class="card shadow-sm sticky-top" style="top: 1rem;">
+                <div class="card-body">
+                    <h5 class="card-title mb-4">Filters</h5>
+
+                    <form method="get" action="">
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Search</label>
+                            <div class="input-group">
+                                <input type="text" name="q" class="form-control" placeholder="Search books..." value="{{ search_query }}">
+                                <button class="btn btn-outline-secondary" type="submit">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Categories</label>
+                            <div class="overflow-auto" style="max-height: 220px;">
+                                {% for cat in all_categories %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="category" value="{{ cat.slug }}" id="cat-{{ cat.slug }}"
+                                        {% if cat.slug in current_filters.category or category and cat.slug == category.slug %}checked{% endif %}>
+                                    <label class="form-check-label d-flex justify-content-between" for="cat-{{ cat.slug }}">
+                                        <span>{{ cat.name }}</span>
+                                        <small class="text-muted">({{ cat.books.count }})</small>
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Author</label>
+                            <select name="author" class="form-select">
+                                <option value="">All Authors</option>
+                                {% for a in all_authors %}
+                                <option value="{{ a.slug }}" {% if current_filters.author == a.slug or author and a.slug == author.slug %}selected{% endif %}>
+                                    {{ a.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium">Price Range</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="number" name="min_price" class="form-control" placeholder="Min" step="1" min="0" value="{{ current_filters.min_price }}">
+                                </div>
+                                <div class="col-6">
+                                    <input type="number" name="max_price" class="form-control" placeholder="Max" step="1" min="0" value="{{ current_filters.max_price }}">
+                                </div>
+                            </div>
+                            <div class="form-text text-muted mt-1">
+                                ${{ price_min|floatformat:2 }} - ${{ price_max|floatformat:2 }}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-medium d-block mb-2">Rating</label>
+                            <div class="d-flex flex-wrap gap-2">
+                                {% for i in "54321" %}
+                                <a href="?{% for key, val in request.GET.items %}{% if key != 'rating' %}{{ key }}={{ val }}&{% endif %}{% endfor %}rating={{ i }}"
+                                   class="btn btn-sm {% if current_filters.rating == i %}btn-primary{% else %}btn-outline-secondary{% endif %} py-1 px-2">
+                                    {% for s in "x"|ljust:i %}
+                                    <i class="bi bi-star-fill text-warning small"></i>
+                                    {% endfor %}
+                                    <span class="visually-hidden">{{ i }}+ stars</span>
+                                </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" name="available" value="1" id="available"
+                                    {% if current_filters.available == '1' %}checked{% endif %}>
+                                <label class="form-check-label" for="available">
+                                    In Stock Only
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-funnel me-1"></i> Apply Filters
+                            </button>
+                            <a href="{% if category %}{% url 'books:category_books' category.slug %}{% elif author %}{% url 'books:author_books' author.slug %}{% else %}{% url 'books:book_list' %}{% endif %}"
+                               class="btn btn-outline-secondary">
+                                Reset
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </aside>
+
+        <div class="col-12 col-lg-9">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+                <div>
+                    {% with books_count=books|length %}
+                    <p class="text-muted mb-0">
+                        Showing <strong>{{ page_obj.start_index|default:0 }}</strong>-<strong>{{ page_obj.end_index|default:0 }}</strong>
+                        of <strong>{{ page_obj.paginator.count }}</strong> results
+                    </p>
+                    {% endwith %}
+                </div>
+                <div class="d-flex gap-2">
+                    <form method="get" class="d-flex gap-2">
+                        {% for key, val in request.GET.items %}
+                            {% if key != 'sort' and key != 'page' %}
+                            <input type="hidden" name="{{ key }}" value="{{ val }}">
+                            {% endif %}
+                        {% endfor %}
+                        <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                            <option value="">Sort By</option>
+                            <option value="popularity" {% if current_sort == 'popularity' %}selected{% endif %}>Most Popular</option>
+                            <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>Newest First</option>
+                            <option value="price-asc" {% if current_sort == 'price-asc' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price-desc" {% if current_sort == 'price-desc' %}selected{% endif %}>Price: High to Low</option>
+                            <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>Top Rated</option>
+                        </select>
+                    </form>
+                    <div class="btn-group btn-group-sm" role="group">
+                        <button type="button" class="btn btn-outline-secondary active" id="grid-view-btn" title="Grid view">
+                            <i class="bi bi-grid-3x3-gap"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="list-view-btn" title="List view">
+                            <i class="bi bi-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {% if books %}
+            <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-4">
+                {% for book in books %}
+                    {% include 'components/book_card.html' %}
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <div class="mb-3">
+                    <i class="bi bi-book display-1 text-muted"></i>
+                </div>
+                <h3 class="h4 fw-bold mb-2">No books found</h3>
+                <p class="text-muted mb-4">No books match your criteria. Try adjusting your filters.</p>
+                <a href="{% if category %}{% url 'books:category_books' category.slug %}{% elif author %}{% url 'books:author_books' author.slug %}{% else %}{% url 'books:book_list' %}{% endif %}"
+                   class="btn btn-primary">Clear Filters</a>
+            </div>
+            {% endif %}
+
+            {% if books and page_obj.has_other_pages %}
+            <nav aria-label="Page navigation" class="mt-5">
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page=1{% for key, val in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}" aria-label="First">
+                            <span aria-hidden="true">&laquo;&laquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, val in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;&laquo;</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">&laquo;</span>
+                    </li>
+                    {% endif %}
+
+                    {% for i in page_obj.paginator.page_range %}
+                        {% if page_obj.number == i %}
+                        <li class="page-item active" aria-current="page">
+                            <span class="page-link">{{ i }}</span>
+                        </li>
+                        {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}{% for key, val in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}">{{ i }}</a>
+                        </li>
+                        {% elif i == 1 or i == page_obj.paginator.num_pages %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ i }}{% for key, val in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}">{{ i }}</a>
+                        </li>
+                        {% elif i == page_obj.number|add:'-4' or i == page_obj.number|add:'4' %}
+                        <li class="page-item disabled"><span class="page-link">...</span></li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, val in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% for key, val in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ val }}{% endif %}{% endfor %}" aria-label="Last">
+                            <span aria-hidden="true">&raquo;&raquo;</span>
+                        </a>
+                    </li>
+                    {% else %}
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;</span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link">&raquo;&raquo;</span>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

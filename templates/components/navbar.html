@@ -1,0 +1,108 @@
+<nav class="navbar navbar-expand-lg sticky-top bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-book-open text-primary"></i> BookNest
+        </a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarMain">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 gap-lg-1">
+                <li class="nav-item">
+                    <a class="nav-link fw-medium" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-medium" href="/books/">Books</a>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link fw-medium dropdown-toggle" href="#" id="categoriesDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        Categories
+                    </a>
+                    <ul class="dropdown-menu border-0 shadow-sm rounded-3" aria-labelledby="categoriesDropdown">
+                        {% for category in all_categories %}
+                            <li><a class="dropdown-item" href="/books/?category={{ category.slug }}">{{ category.name }}</a></li>
+                        {% endfor %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item fw-medium text-primary" href="/books/?category=all">See All Categories</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-medium" href="/books/?filter=bestsellers">Best Sellers</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-medium" href="/books/?filter=new">New Arrivals</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link fw-medium" href="/about/">About</a>
+                </li>
+            </ul>
+
+            <form class="d-flex me-lg-3 mb-2 mb-lg-0" role="search" action="/books/" method="get">
+                <div class="input-group">
+                    <input class="form-control border-end-0 rounded-pill rounded-end-0 ps-3" type="search" name="q" placeholder="Search books..." aria-label="Search">
+                    <button class="btn btn-outline-secondary border-start-0 rounded-pill rounded-start-0" type="submit">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <ul class="navbar-nav flex-row gap-2 align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link position-relative p-2" href="/wishlist/" aria-label="Wishlist">
+                        <i class="far fa-heart"></i>
+                        {% if wishlist_count > 0 %}
+                            <span class="badge bg-secondary position-absolute top-0 end-0 rounded-pill" style="font-size: 0.65rem;">{{ wishlist_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link position-relative p-2" href="/cart/" aria-label="Cart">
+                        <i class="fas fa-shopping-bag"></i>
+                        {% if cart_count > 0 %}
+                            <span class="badge bg-primary position-absolute top-0 end-0 rounded-pill" style="font-size: 0.65rem;">{{ cart_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown ms-2">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 p-1" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            {% if user.profile_picture %}
+                                <img src="{{ user.profile_picture.url }}" alt="{{ user.username }}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                            {% else %}
+                                <span class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-semibold" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                    {{ user.get_full_name|default:user.username|first|upper }}
+                                </span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3" aria-labelledby="userDropdown">
+                            <li><h6 class="dropdown-header fw-medium">Hello, {{ user.get_short_name|default:user.username }}</h6></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="/account/"><i class="fas fa-user-circle me-2 text-secondary"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="/account/orders/"><i class="fas fa-box me-2 text-secondary"></i> Orders</a></li>
+                            <li><a class="dropdown-item" href="/wishlist/"><i class="far fa-heart me-2 text-secondary"></i> Wishlist</a></li>
+                            <li><a class="dropdown-item" href="/account/password/change/"><i class="fas fa-lock me-2 text-secondary"></i> Change Password</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="POST" action="{% url 'account_logout' %}" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item ms-2">
+                        <a href="/accounts/login/" class="btn btn-outline-primary btn-sm rounded-pill px-3">Login</a>
+                    </li>
+                    <li class="nav-item ms-1">
+                        <a href="/accounts/signup/" class="btn btn-primary btn-sm rounded-pill px-3">Register</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,123 @@
+{% load static %}
+{% load crispy_forms_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="books, bookstore, online bookstore, buy books, fiction, non-fiction, BookNest">
+    <meta name="author" content="BookNest">
+    <title>{% block title %}BookNest - Discover your next great read.{% endblock %}</title>
+    <meta name="description" content="{% block description %}BookNest is your modern elegant bookstore offering a curated collection of fiction, non-fiction, and more. Discover your next great read.{% endblock %}">
+
+    <meta property="og:title" content="{% block og_title %}BookNest - Discover your next great read.{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}BookNest is your modern elegant bookstore offering a curated collection of fiction, non-fiction, and more.{% endblock %}">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="{% block og_image %}{% static 'images/og-default.jpg' %}{% endblock %}">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+    <style>
+        :root {
+            --color-primary: #5D4037;
+            --color-secondary: #8D6E63;
+            --color-accent: #D7CCC8;
+            --color-bg-light: #FFF8F1;
+            --color-text-dark: #3E2723;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg-light);
+            color: var(--color-text-dark);
+            padding-top: 76px;
+        }
+        .text-primary { color: var(--color-primary) !important; }
+        .bg-primary { background-color: var(--color-primary) !important; }
+        .btn-primary {
+            background-color: var(--color-primary);
+            border-color: var(--color-primary);
+        }
+        .btn-primary:hover {
+            background-color: #4E342E;
+            border-color: #4E342E;
+        }
+        .text-secondary { color: var(--color-secondary) !important; }
+        .bg-secondary { background-color: var(--color-secondary) !important; }
+        .btn-secondary {
+            background-color: var(--color-secondary);
+            border-color: var(--color-secondary);
+        }
+        .btn-outline-secondary {
+            color: var(--color-secondary);
+            border-color: var(--color-secondary);
+        }
+        .btn-outline-secondary:hover {
+            background-color: var(--color-secondary);
+            border-color: var(--color-secondary);
+            color: #fff;
+        }
+        h1, h2, h3, h4, h5, h6, .font-serif {
+            font-family: 'Playfair Display', serif;
+        }
+        .navbar-brand {
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+        .text-truncate-2-lines {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            min-height: 2.4em;
+            line-height: 1.2;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
+        }
+        .img-hover {
+            transition: transform 0.4s ease;
+        }
+        .img-hover:hover {
+            transform: scale(1.05);
+        }
+        .min-vh-75 {
+            min-height: 75vh;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% include 'components/navbar.html' %}
+
+    {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <main class="min-vh-75">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'components/footer.html' %}
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

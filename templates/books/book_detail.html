@@ -1,0 +1,462 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}{{ book.title }} | {{ site_name }}{% endblock %}
+
+{% block extra_meta %}
+<meta property="og:title" content="{{ book.title }} | {{ site_name }}">
+<meta property="og:description" content="{{ book.description|truncatewords:30 }}">
+{% if book.cover_image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ book.cover_image.url }}">
+{% endif %}
+<meta property="og:type" content="product">
+<meta name="description" content="{{ book.description|truncatewords:30 }}">
+{% endblock %}
+
+{% block content %}
+<section class="page-header bg-light py-4 mb-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'books:book_list' %}">Books</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'books:category_books' book.category.slug %}">{{ book.category.name }}</a></li>
+                <li class="breadcrumb-item active" aria-current="page">{{ book.title }}</li>
+            </ol>
+        </nav>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <div class="row g-5">
+        <div class="col-lg-5">
+            <div class="sticky-top" style="top: 1rem;">
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body p-2 p-md-4 text-center">
+                        {% if book.cover_image %}
+                        <img id="main-image" src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="img-fluid rounded shadow-sm" style="max-height: 450px; object-fit: contain;">
+                        {% else %}
+                        <div id="main-image-wrapper" class="bg-secondary bg-opacity-10 rounded d-flex align-items-center justify-content-center text-muted" style="height: 450px;">
+                            <div>
+                                <i class="bi bi-book display-1"></i>
+                                <p class="mt-2">No Cover</p>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% if book.images.all %}
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    {% if book.cover_image %}
+                    <button type="button" class="btn btn-outline-secondary p-1 rounded thumbnail-btn active" data-src="{{ book.cover_image.url }}" style="width: 60px; height: 80px;">
+                        <img src="{{ book.cover_image.url }}" alt="Cover" class="img-fluid rounded w-100 h-100" style="object-fit: cover;">
+                    </button>
+                    {% endif %}
+                    {% for img in book.images.all %}
+                    <button type="button" class="btn btn-outline-secondary p-1 rounded thumbnail-btn" data-src="{{ img.image.url }}" style="width: 60px; height: 80px;">
+                        <img src="{{ img.image.url }}" alt="{{ img.alt_text|default:book.title }}" class="img-fluid rounded w-100 h-100" style="object-fit: cover;">
+                    </button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="mb-3">
+                {% if book.bestseller %}
+                <span class="badge bg-danger me-1">Bestseller</span>
+                {% endif %}
+                {% if book.new_arrival %}
+                <span class="badge bg-info me-1">New</span>
+                {% endif %}
+                {% if book.is_on_sale %}
+                <span class="badge bg-warning text-dark me-1">-{{ book.discount_percent }}%</span>
+                {% endif %}
+                {% if book.featured %}
+                <span class="badge bg-primary me-1">Featured</span>
+                {% endif %}
+            </div>
+
+            <h1 class="display-5 fw-bold mb-2">{{ book.title }}</h1>
+
+            <p class="fs-5 mb-3">
+                by <a href="{% url 'books:author_books' book.author.slug %}" class="text-decoration-none">{{ book.author.name }}</a>
+                <span class="text-muted">| in </span>
+                <a href="{% url 'books:category_books' book.category.slug %}" class="text-decoration-none">{{ book.category.name }}</a>
+            </p>
+
+            <div class="d-flex align-items-center gap-3 mb-4">
+                <div class="d-flex align-items-center">
+                    {% for i in "12345" %}
+                    {% if forloop.counter <= book.average_rating|floatformat:0 %}
+                    <i class="bi bi-star-fill text-warning"></i>
+                    {% elif forloop.counter <= book.average_rating|add:0.5 %}
+                    <i class="bi bi-star-half text-warning"></i>
+                    {% else %}
+                    <i class="bi bi-star text-warning"></i>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                <span class="fw-medium">{{ book.average_rating|floatformat:2 }}</span>
+                <span class="text-muted">({{ book.reviews.count }} review{{ book.reviews.count|pluralize }})</span>
+            </div>
+
+            <div class="mb-4">
+                <span class="display-6 fw-bold text-primary">${{ book.final_price|floatformat:2 }}</span>
+                {% if book.is_on_sale %}
+                <span class="fs-4 text-muted text-decoration-line-through ms-2">${{ book.price|floatformat:2 }}</span>
+                <span class="badge bg-success ms-2">Save {{ book.discount_percent }}%</span>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                {% if book.stock > 0 %}
+                <span class="badge bg-success fs-6">In Stock ({{ book.stock }} left)</span>
+                {% else %}
+                <span class="badge bg-danger fs-6">Out of Stock</span>
+                {% endif %}
+            </div>
+
+            <div class="card mb-4 bg-light">
+                <div class="card-body py-3">
+                    <ul class="list-unstyled mb-0 row g-2">
+                        <li class="col-md-6"><strong>Format:</strong> {{ book.format }}</li>
+                        <li class="col-md-6"><strong>Language:</strong> {{ book.language }}</li>
+                        <li class="col-md-6"><strong>ISBN:</strong> {{ book.isbn }}</li>
+                        <li class="col-md-6"><strong>Publisher:</strong> {{ book.publisher }}</li>
+                        <li class="col-md-6"><strong>Published:</strong> {{ book.publication_date|date:"F j, Y" }}</li>
+                        <li class="col-md-6"><strong>Pages:</strong> {{ book.pages }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 flex-wrap mb-3">
+                <label class="fw-medium" for="qty-input">Qty:</label>
+                <div class="input-group" style="width: 130px;">
+                    <button type="button" class="btn btn-outline-secondary" id="qty-decrease">
+                        <i class="bi bi-dash"></i>
+                    </button>
+                    <input type="number" id="qty-input" name="quantity" value="1" min="1" max="{{ book.stock }}" class="form-control text-center" form="cart-form">
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap mb-3">
+                <form id="cart-form" method="post" action="{% url 'cart:add_to_cart' book.id %}" class="d-flex gap-2">
+                    {% csrf_token %}
+                    <input type="hidden" id="buy-now-field" name="buy_now" value="0">
+                    <input type="hidden" name="quantity" value="1" id="qty-hidden">
+                    <button type="submit" class="btn btn-primary btn-lg" {% if book.stock == 0 %}disabled{% endif %} onclick="document.getElementById('buy-now-field').value='0'; return true;">
+                        <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                    </button>
+                    <button type="submit" class="btn btn-success btn-lg" {% if book.stock == 0 %}disabled{% endif %} onclick="document.getElementById('buy-now-field').value='1'; return true;">
+                        <i class="bi bi-lightning me-2"></i>Buy Now
+                    </button>
+                </form>
+                {% if user.is_authenticated %}
+                <form method="post" action="{% url 'wishlist:add_to_wishlist' book.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-lg {% if in_wishlist %}active{% endif %}">
+                        <i class="bi {% if in_wishlist %}bi-heart-fill{% else %}bi-heart{% endif %} me-2"></i>
+                        {% if in_wishlist %}In Wishlist{% else %}Add to Wishlist{% endif %}
+                    </button>
+                </form>
+                {% else %}
+                <a href="{% url 'accounts:login' %}?next={{ request.path }}" class="btn btn-outline-danger btn-lg">
+                    <i class="bi bi-heart me-2"></i>Add to Wishlist
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-12">
+            <ul class="nav nav-tabs mb-4" id="bookTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description-tab-pane" type="button" role="tab" aria-controls="description-tab-pane" aria-selected="true">
+                        Description
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="info-tab" data-bs-toggle="tab" data-bs-target="#info-tab-pane" type="button" role="tab" aria-controls="info-tab-pane" aria-selected="false">
+                        Book Information
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-tab-pane" type="button" role="tab" aria-controls="reviews-tab-pane" aria-selected="false">
+                        Reviews ({{ book.reviews.count }})
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="bookTabsContent">
+                <div class="tab-pane fade show active" id="description-tab-pane" role="tabpanel" aria-labelledby="description-tab">
+                    <div class="py-3">
+                        {{ book.description|linebreaks }}
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="info-tab-pane" role="tabpanel" aria-labelledby="info-tab">
+                    <div class="py-3">
+                        <table class="table table-striped">
+                            <tbody>
+                                <tr><th scope="row">Title</th><td>{{ book.title }}</td></tr>
+                                <tr><th scope="row">Author</th><td><a href="{% url 'books:author_books' book.author.slug %}">{{ book.author.name }}</a></td></tr>
+                                <tr><th scope="row">Category</th><td><a href="{% url 'books:category_books' book.category.slug %}">{{ book.category.name }}</a></td></tr>
+                                <tr><th scope="row">ISBN</th><td>{{ book.isbn }}</td></tr>
+                                <tr><th scope="row">Publisher</th><td>{{ book.publisher }}</td></tr>
+                                <tr><th scope="row">Publication Date</th><td>{{ book.publication_date|date:"F j, Y" }}</td></tr>
+                                <tr><th scope="row">Pages</th><td>{{ book.pages }}</td></tr>
+                                <tr><th scope="row">Language</th><td>{{ book.language }}</td></tr>
+                                <tr><th scope="row">Format</th><td>{{ book.format }}</td></tr>
+                                <tr><th scope="row">Price</th><td>${{ book.price|floatformat:2 }}</td></tr>
+                                {% if book.is_on_sale %}
+                                <tr><th scope="row">Sale Price</th><td class="text-danger">${{ book.discount_price|floatformat:2 }}</td></tr>
+                                {% endif %}
+                                <tr><th scope="row">Stock</th><td>{{ book.stock }} unit{{ book.stock|pluralize }}</td></tr>
+                                <tr><th scope="row">Average Rating</th><td>{{ book.average_rating|floatformat:2 }} / 5.00</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel" aria-labelledby="reviews-tab">
+                    <div class="py-3">
+                        <div class="row g-5 mb-5">
+                            <div class="col-md-4">
+                                <div class="text-center">
+                                    <div class="display-1 fw-bold text-primary mb-1">{{ book.average_rating|floatformat:1 }}</div>
+                                    <div class="d-flex justify-content-center mb-2">
+                                        {% for i in "12345" %}
+                                        {% if forloop.counter <= book.average_rating|floatformat:0 %}
+                                        <i class="bi bi-star-fill text-warning fs-4"></i>
+                                        {% elif forloop.counter <= book.average_rating|add:0.5 %}
+                                        <i class="bi bi-star-half text-warning fs-4"></i>
+                                        {% else %}
+                                        <i class="bi bi-star text-warning fs-4"></i>
+                                        {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <p class="text-muted mb-0">Based on {{ book.reviews.count }} review{{ book.reviews.count|pluralize }}</p>
+                                </div>
+                                <div class="mt-4">
+                                    {% for stars in "54321" %}
+                                    {% with star_num=stars|add:0 %}
+                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                        <span class="text-nowrap small" style="width: 50px;">{{ stars }} star</span>
+                                        <div class="progress flex-grow-1" style="height: 8px;">
+                                            <div class="progress-bar bg-warning" role="progressbar" style="width: 0%;" data-stars="{{ stars }}"></div>
+                                        </div>
+                                        <span class="text-muted small review-count" data-stars="{{ stars }}" style="width: 30px;">0</span>
+                                    </div>
+                                    {% endwith %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="col-md-8">
+                                {% if user.is_authenticated and not user_review %}
+                                <div class="card border-primary mb-4">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">Write a Review</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <form method="post" action="{% url 'reviews:create_review' book.slug %}">
+                                            {% csrf_token %}
+                                            <div class="mb-3">
+                                                <label class="form-label fw-medium">Your Rating</label>
+                                                <div class="d-flex gap-2" id="star-input">
+                                                    {% for i in "12345" %}
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm rating-star" data-value="{{ i }}">
+                                                        <i class="bi bi-star fs-4"></i>
+                                                    </button>
+                                                    {% endfor %}
+                                                </div>
+                                                <input type="hidden" name="rating" id="rating-value" value="">
+                                            </div>
+                                            <div class="mb-3">
+                                                {{ review_form.comment|as_crispy_field }}
+                                            </div>
+                                            <button type="submit" class="btn btn-primary">Submit Review</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                {% elif user.is_authenticated and user_review %}
+                                <div class="card border-info mb-4">
+                                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                                        <h5 class="mb-0">Your Review</h5>
+                                        <a href="#" class="btn btn-sm btn-outline-light">Edit</a>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-2">
+                                            {% for i in "12345" %}
+                                            {% if forloop.counter <= user_review.rating %}
+                                            <i class="bi bi-star-fill text-warning"></i>
+                                            {% else %}
+                                            <i class="bi bi-star text-warning"></i>
+                                            {% endif %}
+                                            {% endfor %}
+                                            <small class="text-muted ms-2">{{ user_review.created_at|date:"F j, Y" }}</small>
+                                        </div>
+                                        <p class="mb-0">{{ user_review.comment|linebreaks }}</p>
+                                    </div>
+                                </div>
+                                {% elif not user.is_authenticated %}
+                                <div class="card border-secondary mb-4">
+                                    <div class="card-body text-center py-4">
+                                        <i class="bi bi-box-arrow-in-right display-4 text-muted mb-3"></i>
+                                        <h5 class="mb-2">Log in to write a review</h5>
+                                        <p class="text-muted mb-3">Please sign in to share your thoughts about this book.</p>
+                                        <a href="{% url 'accounts:login' %}?next={{ request.path }}#reviews-tab-pane" class="btn btn-primary">Log In</a>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                {% if book.reviews.all %}
+                                <h5 class="mb-3">Customer Reviews</h5>
+                                <div id="reviews-list">
+                                    {% for review in book.reviews.all %}
+                                    <div class="border rounded p-4 mb-3 review-item" data-rating="{{ review.rating }}">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <strong>{{ review.user.get_full_name|default:review.user.username }}</strong>
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <div>
+                                                        {% for i in "12345" %}
+                                                        {% if forloop.counter <= review.rating %}
+                                                        <i class="bi bi-star-fill text-warning"></i>
+                                                        {% else %}
+                                                        <i class="bi bi-star text-warning"></i>
+                                                        {% endif %}
+                                                        {% endfor %}
+                                                    </div>
+                                                    <small class="text-muted">{{ review.created_at|date:"F j, Y" }}</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% if review.comment %}
+                                        <p class="mb-0 mt-2">{{ review.comment|linebreaks }}</p>
+                                        {% endif %}
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% else %}
+                                <div class="text-center py-5 border rounded">
+                                    <i class="bi bi-chat-left-text display-4 text-muted mb-3"></i>
+                                    <h5 class="mb-1">No reviews yet</h5>
+                                    <p class="text-muted mb-0">Be the first to review this book!</p>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if related_books %}
+    <section class="mt-5 pt-5 border-top">
+        <h2 class="h3 fw-bold mb-4">Related Books</h2>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-4">
+            {% for rel_book in related_books %}
+                {% include 'components/book_card.html' with book=rel_book %}
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var thumbnails = document.querySelectorAll('.thumbnail-btn');
+    var mainImage = document.getElementById('main-image');
+    var mainWrapper = document.getElementById('main-image-wrapper');
+    thumbnails.forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            thumbnails.forEach(function(b) { b.classList.remove('active', 'btn-primary'); b.classList.add('btn-outline-secondary'); });
+            btn.classList.add('active', 'btn-primary');
+            btn.classList.remove('btn-outline-secondary');
+            var src = btn.getAttribute('data-src');
+            if (mainImage) {
+                mainImage.src = src;
+            } else if (mainWrapper) {
+                var img = document.createElement('img');
+                img.id = 'main-image';
+                img.src = src;
+                img.alt = '{{ book.title|escapejs }}';
+                img.className = 'img-fluid rounded shadow-sm';
+                img.style.cssText = 'max-height: 450px; object-fit: contain;';
+                mainWrapper.parentNode.replaceChild(img, mainWrapper);
+                mainImage = img;
+                mainWrapper = null;
+            }
+        });
+    });
+
+    var qtyInput = document.getElementById('qty-input');
+    var qtyHidden = document.getElementById('qty-hidden');
+    var qtyDec = document.getElementById('qty-decrease');
+    var qtyInc = document.getElementById('qty-increase');
+    function updateQty() {
+        if (qtyHidden) qtyHidden.value = qtyInput.value;
+    }
+    if (qtyInput && qtyDec && qtyInc) {
+        qtyDec.addEventListener('click', function() {
+            var val = parseInt(qtyInput.value) || 1;
+            if (val > 1) qtyInput.value = val - 1;
+            updateQty();
+        });
+        qtyInc.addEventListener('click', function() {
+            var val = parseInt(qtyInput.value) || 1;
+            var max = parseInt(qtyInput.max) || 999;
+            if (val < max) qtyInput.value = val + 1;
+            updateQty();
+        });
+        qtyInput.addEventListener('input', updateQty);
+    }
+
+    var ratingStars = document.querySelectorAll('.rating-star');
+    var ratingValue = document.getElementById('rating-value');
+    ratingStars.forEach(function(star) {
+        star.addEventListener('click', function() {
+            var value = parseInt(star.getAttribute('data-value'));
+            ratingValue.value = value;
+            ratingStars.forEach(function(s, idx) {
+                var icon = s.querySelector('i');
+                if (idx < value) {
+                    icon.className = 'bi bi-star-fill fs-4';
+                    s.classList.add('active', 'btn-warning');
+                    s.classList.remove('btn-outline-secondary');
+                } else {
+                    icon.className = 'bi bi-star fs-4';
+                    s.classList.remove('active', 'btn-warning');
+                    s.classList.add('btn-outline-secondary');
+                }
+            });
+        });
+    });
+
+    var reviewItems = document.querySelectorAll('.review-item');
+    var totalReviews = reviewItems.length;
+    var ratingCounts = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0};
+    reviewItems.forEach(function(item) {
+        var r = parseInt(item.getAttribute('data-rating'));
+        if (ratingCounts[r] !== undefined) ratingCounts[r]++;
+    });
+    [5, 4, 3, 2, 1].forEach(function(s) {
+        var bar = document.querySelector('.progress-bar[data-stars="' + s + '"]');
+        var countEl = document.querySelector('.review-count[data-stars="' + s + '"]');
+        if (bar && countEl) {
+            var pct = totalReviews > 0 ? (ratingCounts[s] / totalReviews * 100) : 0;
+            bar.style.width = pct + '%';
+            countEl.textContent = ratingCounts[s];
+        }
+    });
+});
+</script>
+{% endblock %}

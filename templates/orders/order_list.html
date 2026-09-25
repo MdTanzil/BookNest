@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders | BookNest{% endblock %}
+
+{% block content %}
+<section class="py-4 mb-4" style="background-color: #EFEBE9;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="/account/" class="text-decoration-none">Account</a></li>
+                <li class="breadcrumb-item active" aria-current="page">My Orders</li>
+            </ol>
+        </nav>
+        <h1 class="display-6 fw-bold mb-0 text-primary">My Orders</h1>
+    </div>
+</section>
+
+<div class="container mb-5">
+    {% if page_obj.object_list %}
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead style="background-color: #EFEBE9;">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 text-muted fw-medium small text-uppercase">Order #</th>
+                            <th scope="col" class="px-4 py-3 text-muted fw-medium small text-uppercase">Date</th>
+                            <th scope="col" class="px-4 py-3 text-muted fw-medium small text-uppercase">Items</th>
+                            <th scope="col" class="px-4 py-3 text-muted fw-medium small text-uppercase">Total</th>
+                            <th scope="col" class="px-4 py-3 text-muted fw-medium small text-uppercase">Status</th>
+                            <th scope="col" class="px-4 py-3 text-muted fw-medium small text-uppercase">Payment</th>
+                            <th scope="col" class="px-4 py-3 text-muted fw-medium small text-uppercase">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr style="border-bottom: 1px solid #F5F5F5;">
+                            <td class="px-4 py-3">
+                                <a href="{% url 'orders:order_detail' order.order_number %}" class="fw-semibold text-primary text-decoration-none">
+                                    {{ order.order_number }}
+                                </a>
+                            </td>
+                            <td class="px-4 py-3 text-muted small">
+                                {{ order.created_at|date:"M d, Y" }}
+                                <br>
+                                <span class="text-muted">{{ order.created_at|date:"h:i A" }}</span>
+                            </td>
+                            <td class="px-4 py-3 small">
+                                <span class="fw-medium">{{ order.items.count }}</span> item{{ order.items.count|pluralize }}
+                            </td>
+                            <td class="px-4 py-3">
+                                <span class="fw-bold text-primary">${{ order.total|floatformat:2 }}</span>
+                            </td>
+                            <td class="px-4 py-3">
+                                {% if order.status == 'Pending' %}
+                                <span class="badge rounded-pill bg-warning text-dark" style="font-size: 0.75rem;">
+                                    <i class="fa-regular fa-clock me-1"></i>{{ order.status }}
+                                </span>
+                                {% elif order.status == 'Confirmed' %}
+                                <span class="badge rounded-pill bg-info text-white" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-circle-check me-1"></i>{{ order.status }}
+                                </span>
+                                {% elif order.status == 'Processing' %}
+                                <span class="badge rounded-pill text-white" style="background-color: #7E57C2; font-size: 0.75rem;">
+                                    <i class="fa-solid fa-boxes-packing me-1"></i>{{ order.status }}
+                                </span>
+                                {% elif order.status == 'Shipped' %}
+                                <span class="badge rounded-pill text-white" style="background-color: #FF9800; font-size: 0.75rem;">
+                                    <i class="fa-solid fa-truck-fast me-1"></i>{{ order.status }}
+                                </span>
+                                {% elif order.status == 'Delivered' %}
+                                <span class="badge rounded-pill bg-success" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-check-double me-1"></i>{{ order.status }}
+                                </span>
+                                {% elif order.status == 'Cancelled' %}
+                                <span class="badge rounded-pill bg-danger" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-xmark me-1"></i>{{ order.status }}
+                                </span>
+                                {% else %}
+                                <span class="badge rounded-pill bg-secondary" style="font-size: 0.75rem;">{{ order.status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3">
+                                {% if order.payment_status == 'Paid' %}
+                                <span class="badge rounded-pill bg-success" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-check me-1"></i>{{ order.payment_status }}
+                                </span>
+                                {% elif order.payment_status == 'Pending' %}
+                                <span class="badge rounded-pill bg-warning text-dark" style="font-size: 0.75rem;">
+                                    <i class="fa-regular fa-clock me-1"></i>{{ order.payment_status }}
+                                </span>
+                                {% elif order.payment_status == 'Failed' %}
+                                <span class="badge rounded-pill bg-danger" style="font-size: 0.75rem;">
+                                    <i class="fa-solid fa-xmark me-1"></i>{{ order.payment_status }}
+                                </span>
+                                {% elif order.payment_status == 'Refunded' %}
+                                <span class="badge rounded-pill text-white" style="background-color: #7E57C2; font-size: 0.75rem;">
+                                    <i class="fa-solid fa-arrow-rotate-left me-1"></i>{{ order.payment_status }}
+                                </span>
+                                {% else %}
+                                <span class="badge rounded-pill bg-secondary" style="font-size: 0.75rem;">{{ order.payment_status }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3">
+                                <a href="{% url 'orders:order_detail' order.order_number %}" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                    <i class="fa-solid fa-eye me-1"></i>View Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-4" aria-label="Orders pagination">
+        <ul class="pagination justify-content-center mb-0">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link rounded-pill mx-1" href="?page=1" aria-label="First">
+                    <i class="fa-solid fa-angles-left"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link rounded-pill mx-1" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <i class="fa-solid fa-angle-left"></i>
+                </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active">
+                <span class="page-link rounded-pill mx-1 bg-primary border-primary">{{ num }}</span>
+            </li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link rounded-pill mx-1" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link rounded-pill mx-1" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <i class="fa-solid fa-angle-right"></i>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link rounded-pill mx-1" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <i class="fa-solid fa-angles-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+
+    {% else %}
+    <div class="card shadow-sm border-0 rounded-4">
+        <div class="card-body text-center p-5 py-6">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4" style="width: 90px; height: 90px; background-color: #EFEBE9;">
+                <i class="fa-solid fa-box-open display-4 text-secondary"></i>
+            </div>
+            <h3 class="font-serif fw-bold mb-2 text-primary">No orders yet</h3>
+            <p class="text-muted mb-4">Looks like you haven't placed any orders yet. Start browsing our collection to find your next great read!</p>
+            <a href="/books/" class="btn btn-primary btn-lg rounded-pill px-5 fw-medium">
+                <i class="fa-solid fa-book-open me-2"></i>Browse Books
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

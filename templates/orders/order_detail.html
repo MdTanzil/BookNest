@@ -1,0 +1,319 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order #{{ order.order_number }} | BookNest{% endblock %}
+
+{% block content %}
+<section class="py-4 mb-4" style="background-color: #EFEBE9;">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="/" class="text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="/account/" class="text-decoration-none">Account</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'orders:order_list' %}" class="text-decoration-none">My Orders</a></li>
+                <li class="breadcrumb-item active" aria-current="page">#{{ order.order_number }}</li>
+            </ol>
+        </nav>
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h1 class="display-6 fw-bold mb-1 text-primary">Order #{{ order.order_number }}</h1>
+                <p class="text-muted mb-0">Placed on {{ order.created_at|date:"F d, Y \a\t h:i A" }}</p>
+            </div>
+            <a href="{% url 'orders:order_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="fa-solid fa-arrow-left me-1"></i>Back to Orders
+            </a>
+        </div>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <div class="card shadow-sm border-0 rounded-4 mb-4">
+        <div class="card-body p-4 p-md-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-4 mb-4">
+                <div>
+                    <h3 class="font-serif fw-bold mb-2 text-primary h5">Order Status</h3>
+                    <p class="text-muted small mb-0">Last updated: {{ order.updated_at|date:"M d, Y h:i A" }}</p>
+                </div>
+                {% if order.status == 'Pending' %}
+                <span class="badge rounded-pill bg-warning text-dark px-4 py-2" style="font-size: 0.9rem;">
+                    <i class="fa-regular fa-clock me-1"></i>{{ order.status }}
+                </span>
+                {% elif order.status == 'Confirmed' %}
+                <span class="badge rounded-pill bg-info text-white px-4 py-2" style="font-size: 0.9rem;">
+                    <i class="fa-solid fa-circle-check me-1"></i>{{ order.status }}
+                </span>
+                {% elif order.status == 'Processing' %}
+                <span class="badge rounded-pill text-white px-4 py-2" style="background-color: #7E57C2; font-size: 0.9rem;">
+                    <i class="fa-solid fa-boxes-packing me-1"></i>{{ order.status }}
+                </span>
+                {% elif order.status == 'Shipped' %}
+                <span class="badge rounded-pill text-white px-4 py-2" style="background-color: #FF9800; font-size: 0.9rem;">
+                    <i class="fa-solid fa-truck-fast me-1"></i>{{ order.status }}
+                </span>
+                {% elif order.status == 'Delivered' %}
+                <span class="badge rounded-pill bg-success px-4 py-2" style="font-size: 0.9rem;">
+                    <i class="fa-solid fa-check-double me-1"></i>{{ order.status }}
+                </span>
+                {% elif order.status == 'Cancelled' %}
+                <span class="badge rounded-pill bg-danger px-4 py-2" style="font-size: 0.9rem;">
+                    <i class="fa-solid fa-xmark me-1"></i>{{ order.status }}
+                </span>
+                {% endif %}
+            </div>
+
+            {% with steps='Pending,Confirmed,Processing,Shipped,Delivered' %}
+            {% with steps_list=steps|split:',' %}
+            <div class="position-relative">
+                <div class="d-none d-md-block position-absolute top-50 start-0 end-0 mx-5" style="height: 3px; background-color: #D7CCC8; transform: translateY(-50%); z-index: 0;"></div>
+                <div class="d-flex justify-content-between position-relative" style="z-index: 1;">
+                    {% with current_index=0 %}
+                    {% for step in steps_list %}
+                    {% if order.status == step %}{% with current_index=forloop.counter0 %}{% endwith %}{% endif %}
+                    {% endfor %}
+                    {% endwith %}
+
+                    {% for step in steps_list %}
+                    {% with step_index=forloop.counter0 %}
+                    <div class="d-flex flex-column align-items-center flex-1 px-1">
+                        {% if order.status == step %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 44px; height: 44px; background-color: var(--color-primary);">
+                            {% if step == 'Pending' %}<i class="fa-regular fa-clock"></i>
+                            {% elif step == 'Confirmed' %}<i class="fa-solid fa-circle-check"></i>
+                            {% elif step == 'Processing' %}<i class="fa-solid fa-boxes-packing"></i>
+                            {% elif step == 'Shipped' %}<i class="fa-solid fa-truck-fast"></i>
+                            {% elif step == 'Delivered' %}<i class="fa-solid fa-check-double"></i>
+                            {% endif %}
+                        </div>
+                        <div class="small fw-bold text-primary mt-2 text-center">{{ step }}</div>
+                        {% else %}
+                        {% with status_order='Pending:0,Confirmed:1,Processing:2,Shipped:3,Delivered:4' %}
+                        {% if step == 'Delivered' %}{% if order.status == 'Delivered' or order.status == 'Cancelled' %}{% endif %}{% endif %}
+                        {% if order.status == 'Cancelled' and step == 'Pending' %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white shadow-sm" style="width: 44px; height: 44px; background-color: #F44336;">
+                            <i class="fa-solid fa-xmark"></i>
+                        </div>
+                        <div class="small fw-bold text-danger mt-2 text-center">Cancelled</div>
+                        {% else %}
+                        {% with order_idx=-1 %}
+                        {% if order.status == 'Pending' %}{% with order_idx=0 %}{% endwith %}{% endif %}
+                        {% if order.status == 'Confirmed' %}{% with order_idx=1 %}{% endwith %}{% endif %}
+                        {% if order.status == 'Processing' %}{% with order_idx=2 %}{% endwith %}{% endif %}
+                        {% if order.status == 'Shipped' %}{% with order_idx=3 %}{% endwith %}{% endif %}
+                        {% if order.status == 'Delivered' %}{% with order_idx=4 %}{% endwith %}{% endif %}
+                        {% if step_index <= 3 and order.status == 'Delivered' or order.status == 'Confirmed' and step_index <= 1 or order.status == 'Processing' and step_index <= 2 or order.status == 'Shipped' and step_index <= 3 or order.status == 'Delivered' and step_index <= 4 %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 44px; height: 44px; background-color: var(--color-secondary);">
+                            {% if step == 'Pending' %}<i class="fa-regular fa-clock"></i>
+                            {% elif step == 'Confirmed' %}<i class="fa-solid fa-circle-check"></i>
+                            {% elif step == 'Processing' %}<i class="fa-solid fa-boxes-packing"></i>
+                            {% elif step == 'Shipped' %}<i class="fa-solid fa-truck-fast"></i>
+                            {% elif step == 'Delivered' %}<i class="fa-solid fa-check-double"></i>
+                            {% endif %}
+                        </div>
+                        <div class="small fw-semibold text-secondary mt-2 text-center">{{ step }}</div>
+                        {% else %}
+                        <div class="rounded-circle d-flex align-items-center justify-content-center text-white" style="width: 44px; height: 44px; background-color: #D7CCC8;">
+                            {% if step == 'Pending' %}<i class="fa-regular fa-clock"></i>
+                            {% elif step == 'Confirmed' %}<i class="fa-solid fa-circle-check"></i>
+                            {% elif step == 'Processing' %}<i class="fa-solid fa-boxes-packing"></i>
+                            {% elif step == 'Shipped' %}<i class="fa-solid fa-truck-fast"></i>
+                            {% elif step == 'Delivered' %}<i class="fa-solid fa-check-double"></i>
+                            {% endif %}
+                        </div>
+                        <div class="small text-muted mt-2 text-center">{{ step }}</div>
+                        {% endif %}
+                        {% endwith %}
+                        {% endif %}
+                        {% endwith %}
+                        {% endif %}
+                    </div>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+            {% endwith %}
+            {% endwith %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="font-serif fw-bold mb-4 text-primary h5">
+                        <i class="fa-solid fa-location-dot me-2 text-secondary"></i>Shipping Information
+                    </h3>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="text-muted small mb-1">Recipient Name</div>
+                            <div class="fw-medium">{{ order.shipping_name }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-muted small mb-1">Phone Number</div>
+                            <div class="fw-medium">{{ order.shipping_phone }}</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="text-muted small mb-1">Street Address</div>
+                            <div class="fw-medium">{{ order.shipping_address }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-muted small mb-1">City</div>
+                            <div class="fw-medium">{{ order.shipping_city }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-muted small mb-1">Postal Code</div>
+                            <div class="fw-medium">{{ order.shipping_postcode }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="font-serif fw-bold mb-4 text-primary h5">
+                        <i class="fa-solid fa-credit-card me-2 text-secondary"></i>Payment Information
+                    </h3>
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <div class="text-muted small mb-1">Payment Method</div>
+                            <div class="fw-medium">{{ order.payment_method }}</div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="text-muted small mb-1">Payment Status</div>
+                            <div>
+                                {% if order.payment_status == 'Paid' %}
+                                <span class="badge bg-success rounded-pill px-3 py-1">
+                                    <i class="fa-solid fa-check me-1"></i>{{ order.payment_status }}
+                                </span>
+                                {% elif order.payment_status == 'Pending' %}
+                                <span class="badge bg-warning text-dark rounded-pill px-3 py-1">
+                                    <i class="fa-regular fa-clock me-1"></i>{{ order.payment_status }}
+                                </span>
+                                {% elif order.payment_status == 'Failed' %}
+                                <span class="badge bg-danger rounded-pill px-3 py-1">
+                                    <i class="fa-solid fa-xmark me-1"></i>{{ order.payment_status }}
+                                </span>
+                                {% elif order.payment_status == 'Refunded' %}
+                                <span class="badge text-white rounded-pill px-3 py-1" style="background-color: #7E57C2;">
+                                    <i class="fa-solid fa-arrow-rotate-left me-1"></i>{{ order.payment_status }}
+                                </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="font-serif fw-bold mb-4 text-primary h5">
+                        <i class="fa-solid fa-bag-shopping me-2 text-secondary"></i>Order Items
+                    </h3>
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle">
+                            <thead class="border-bottom">
+                                <tr>
+                                    <th scope="col" class="text-muted fw-medium small py-3" style="width: 80px;"></th>
+                                    <th scope="col" class="text-muted fw-medium small py-3">Book</th>
+                                    <th scope="col" class="text-muted fw-medium small text-end py-3">Qty</th>
+                                    <th scope="col" class="text-muted fw-medium small text-end py-3">Price</th>
+                                    <th scope="col" class="text-muted fw-medium small text-end py-3">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr style="border-bottom: 1px solid #F5F5F5;">
+                                    <td class="py-3">
+                                        <div style="width: 60px; height: 80px;">
+                                            {% if item.book.cover_image %}
+                                            <a href="{% url 'books:book_detail' item.book.slug %}">
+                                                <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" class="img-fluid rounded w-100 h-100 object-fit-cover">
+                                            </a>
+                                            {% else %}
+                                            <div class="w-100 h-100 bg-secondary bg-opacity-10 rounded d-flex align-items-center justify-content-center text-muted">
+                                                <i class="fa-solid fa-book"></i>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </td>
+                                    <td class="py-3">
+                                        <a href="{% url 'books:book_detail' item.book.slug %}" class="fw-medium text-dark text-decoration-none">{{ item.book.title }}</a>
+                                        <div class="text-muted small">{{ item.book.author.name }}</div>
+                                    </td>
+                                    <td class="py-3 text-end">{{ item.quantity }}</td>
+                                    <td class="py-3 text-end">${{ item.price|floatformat:2 }}</td>
+                                    <td class="py-3 text-end fw-semibold text-primary">${{ item.total|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card shadow-sm border-0 rounded-4 sticky-top" style="top: 6rem;">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="font-serif fw-bold mb-4 text-primary h5">
+                        <i class="fa-solid fa-calculator me-2 text-secondary"></i>Order Totals
+                    </h3>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="fw-medium">${{ order.subtotal|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2 align-items-center">
+                        <span class="text-muted">Shipping</span>
+                        {% if order.shipping_cost == 0 %}
+                        <span class="fw-medium text-success">FREE</span>
+                        {% else %}
+                        <span class="fw-medium">${{ order.shipping_cost|floatformat:2 }}</span>
+                        {% endif %}
+                    </div>
+                    {% if order.discount > 0 %}
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Discount</span>
+                        <span class="fw-medium text-danger">-${{ order.discount|floatformat:2 }}</span>
+                    </div>
+                    {% endif %}
+
+                    <hr class="my-3">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <span class="fw-bold h5 mb-0">Total Paid</span>
+                        <span class="fw-bold h3 text-primary mb-0">${{ order.total|floatformat:2 }}</span>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="d-grid gap-2">
+                        <a href="/books/" class="btn btn-outline-secondary rounded-pill py-2">
+                            <i class="fa-solid fa-book-open me-1"></i>Continue Shopping
+                        </a>
+                        {% if order.status == 'Pending' and order.payment_status == 'Pending' and order.payment_method != 'Cash on Delivery' %}
+                        <button class="btn btn-primary rounded-pill py-2" disabled>
+                            <i class="fa-solid fa-credit-card me-1"></i>Pay Now (Coming Soon)
+                        </button>
+                        {% endif %}
+                        {% if order.status == 'Delivered' %}
+                        <a href="#" class="btn btn-outline-primary rounded-pill py-2">
+                            <i class="fa-solid fa-star me-1"></i>Write a Review
+                        </a>
+                        {% endif %}
+                    </div>
+
+                    <div class="mt-4 p-3 rounded-3" style="background-color: #FAFAFA;">
+                        <div class="d-flex align-items-start gap-2">
+                            <i class="fa-solid fa-circle-question text-secondary mt-1"></i>
+                            <div>
+                                <div class="small fw-bold mb-1">Need help with your order?</div>
+                                <small class="text-muted">Contact our support team at <a href="mailto:support@booknest.com" class="text-primary text-decoration-none">support@booknest.com</a> and reference your order number.</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

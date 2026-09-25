@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}All Categories | {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header bg-light py-5 mb-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'books:book_list' %}">Books</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Categories</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold">All Categories</h1>
+        <p class="lead text-muted mt-2">Browse books by category</p>
+    </div>
+</section>
+
+<div class="container mb-5">
+    {% if object_list %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for cat in object_list %}
+        <div class="col">
+            <a href="{% url 'books:category_books' cat.slug %}" class="text-decoration-none text-reset">
+                <div class="card h-100 shadow-sm hover-shadow transition-shadow">
+                    {% if cat.image %}
+                    <div class="ratio ratio-16x9 overflow-hidden">
+                        <img src="{{ cat.image.url }}" alt="{{ cat.name }}" class="card-img-top object-fit-cover h-100">
+                    </div>
+                    {% else %}
+                    <div class="ratio ratio-16x9 bg-primary bg-opacity-10 d-flex align-items-center justify-content-center text-primary">
+                        <i class="bi bi-folder-fill display-3 opacity-75"></i>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title mb-0 fw-bold">{{ cat.name }}</h5>
+                            <span class="badge bg-secondary">{{ cat.book_count }} book{{ cat.book_count|pluralize }}</span>
+                        </div>
+                        {% if cat.description %}
+                        <p class="card-text text-muted small mb-0">
+                            {{ cat.description|truncatechars:120 }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    <div class="card-footer bg-white border-top-0 pt-0">
+                        <span class="btn btn-sm btn-outline-primary rounded-pill">
+                            Browse <i class="bi bi-arrow-right ms-1"></i>
+                        </span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="mb-3">
+            <i class="bi bi-folder-x display-1 text-muted"></i>
+        </div>
+        <h3 class="h4 fw-bold mb-2">No categories found</h3>
+        <p class="text-muted mb-4">Categories will appear here once they are added.</p>
+        <a href="{% url 'books:book_list' %}" class="btn btn-primary">Browse All Books</a>
+    </div>
+    {% endif %}
+
+    {% if page_obj.has_other_pages %}
+    <nav aria-label="Page navigation" class="mt-5">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page=1" aria-label="First">
+                    <span aria-hidden="true">&laquo;&laquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;&laquo;</span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">&laquo;</span>
+            </li>
+            {% endif %}
+
+            {% for i in page_obj.paginator.page_range %}
+                {% if page_obj.number == i %}
+                <li class="page-item active" aria-current="page">
+                    <span class="page-link">{{ i }}</span>
+                </li>
+                {% elif i > page_obj.number|add:'-3' and i < page_obj.number|add:'3' %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% elif i == 1 or i == page_obj.paginator.num_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                </li>
+                {% elif i == page_obj.number|add:'-4' or i == page_obj.number|add:'4' %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                    <span aria-hidden="true">&raquo;&raquo;</span>
+                </a>
+            </li>
+            {% else %}
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;</span>
+            </li>
+            <li class="page-item disabled">
+                <span class="page-link">&raquo;&raquo;</span>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}

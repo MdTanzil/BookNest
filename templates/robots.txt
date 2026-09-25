@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /accounts/
+Disallow: /cart/
+Disallow: /orders/
+Disallow: /wishlist/
+
+Sitemap: http://booknest.example.com/sitemap.xml

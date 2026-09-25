@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Success | BookNest{% endblock %}
+
+{% block content %}
+<div class="container py-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-4 text-center p-4 p-md-5 mb-4">
+                <div class="mb-4">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-success bg-opacity-10 mb-3" style="width: 100px; height: 100px;">
+                        <i class="fa-solid fa-circle-check display-3 text-success"></i>
+                    </div>
+                </div>
+                <h2 class="font-serif fw-bold mb-3 text-primary">Order placed successfully!</h2>
+                <p class="text-muted mb-4 fs-5">Thank you for your purchase, <strong>{{ order.shipping_name }}</strong>!</p>
+
+                <div class="mb-4 p-4 rounded-4" style="background-color: #EFEBE9;">
+                    <div class="text-muted small mb-1">YOUR ORDER NUMBER</div>
+                    <div class="d-flex align-items-center justify-content-center gap-2">
+                        <span class="font-serif fw-bold h3 text-primary mb-0" id="orderNumberText">{{ order.order_number }}</span>
+                        <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle" onclick="copyOrderNumber()" title="Copy order number" style="width: 36px; height: 36px;">
+                            <i class="fa-regular fa-copy"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted mt-2 d-block">Tip: Save this order number for future reference</small>
+                </div>
+
+                {% if is_cod %}
+                <div class="alert alert-warning rounded-4 border-0 mb-4 text-start" style="background-color: #FFF8E1;">
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="fa-solid fa-money-bill-wave text-warning fs-4 mt-1"></i>
+                        <div>
+                            <div class="fw-bold text-dark mb-1">Cash on Delivery</div>
+                            <small class="text-muted">Please have <strong class="text-primary">${{ order.total|floatformat:2 }}</strong> ready in cash when the delivery arrives. Our courier will contact you before delivery.</small>
+                        </div>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info rounded-4 border-0 mb-4 text-start" style="background-color: #E3F2FD;">
+                    <div class="d-flex align-items-start gap-3">
+                        <i class="fa-solid fa-credit-card text-info fs-4 mt-1"></i>
+                        <div>
+                            <div class="fw-bold text-dark mb-1">Online Payment</div>
+                            <small class="text-muted">Payment gateway integration coming soon. Your order has been placed with pending payment status.</small>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="card shadow-sm border-0 rounded-4 mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <h3 class="font-serif fw-bold mb-4 text-primary">Order Summary</h3>
+
+                    <div class="table-responsive mb-4">
+                        <table class="table table-borderless align-middle">
+                            <thead class="border-bottom">
+                                <tr>
+                                    <th scope="col" class="text-muted fw-medium small py-3">Item</th>
+                                    <th scope="col" class="text-muted fw-medium small text-end py-3">Qty</th>
+                                    <th scope="col" class="text-muted fw-medium small text-end py-3">Price</th>
+                                    <th scope="col" class="text-muted fw-medium small text-end py-3">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in items %}
+                                <tr>
+                                    <td class="py-3">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div style="width: 50px; height: 65px;">
+                                                {% if item.book.cover_image %}
+                                                <img src="{{ item.book.cover_image.url }}" alt="{{ item.book.title }}" class="img-fluid rounded w-100 h-100 object-fit-cover">
+                                                {% else %}
+                                                <div class="w-100 h-100 bg-secondary bg-opacity-10 rounded d-flex align-items-center justify-content-center text-muted">
+                                                    <i class="fa-solid fa-book fa-sm"></i>
+                                                </div>
+                                                {% endif %}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="fw-medium text-truncate">{{ item.book.title }}</div>
+                                                <small class="text-muted">{{ item.book.author.name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-end py-3">{{ item.quantity }}</td>
+                                    <td class="text-end py-3">${{ item.price|floatformat:2 }}</td>
+                                    <td class="text-end py-3 fw-semibold">${{ item.total|floatformat:2 }}</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4" style="background-color: #FAFAFA;">
+                                <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-location-dot me-2 text-secondary"></i>Shipping Address</h5>
+                                <div class="text-muted small">
+                                    <div class="fw-medium text-dark mb-1">{{ order.shipping_name }}</div>
+                                    <div>{{ order.shipping_address }}</div>
+                                    <div>{{ order.shipping_city }}, {{ order.shipping_postcode }}</div>
+                                    <div class="mt-2"><i class="fa-solid fa-phone me-1"></i>{{ order.shipping_phone }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-4 rounded-4" style="background-color: #FAFAFA;">
+                                <h5 class="fw-bold mb-3 text-primary"><i class="fa-solid fa-credit-card me-2 text-secondary"></i>Payment Method</h5>
+                                <div class="text-muted small">
+                                    <div class="fw-medium text-dark mb-1">{{ order.payment_method }}</div>
+                                    <div>
+                                        Payment Status:
+                                        {% if order.payment_status == 'Paid' %}
+                                        <span class="badge bg-success ms-1">{{ order.payment_status }}</span>
+                                        {% elif order.payment_status == 'Pending' %}
+                                        <span class="badge bg-warning text-dark ms-1">{{ order.payment_status }}</span>
+                                        {% else %}
+                                        <span class="badge bg-secondary ms-1">{{ order.payment_status }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row justify-content-end">
+                        <div class="col-md-5">
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span class="text-muted">Subtotal</span>
+                                <span class="fw-medium">${{ order.subtotal|floatformat:2 }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span class="text-muted">Shipping</span>
+                                {% if order.shipping_cost == 0 %}
+                                <span class="fw-medium text-success">FREE</span>
+                                {% else %}
+                                <span class="fw-medium">${{ order.shipping_cost|floatformat:2 }}</span>
+                                {% endif %}
+                            </div>
+                            {% if order.discount > 0 %}
+                            <div class="d-flex justify-content-between mb-2 small">
+                                <span class="text-muted">Discount</span>
+                                <span class="fw-medium text-danger">-${{ order.discount|floatformat:2 }}</span>
+                            </div>
+                            {% endif %}
+                            <hr>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="fw-bold h5 mb-0">Total</span>
+                                <span class="fw-bold h3 text-primary mb-0">${{ order.total|floatformat:2 }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+                <a href="/books/" class="btn btn-outline-secondary btn-lg rounded-pill px-5 fw-medium">
+                    <i class="fa-solid fa-book-open me-2"></i>Continue Shopping
+                </a>
+                <a href="{% url 'orders:order_detail' order.order_number %}" class="btn btn-primary btn-lg rounded-pill px-5 fw-medium">
+                    <i class="fa-solid fa-receipt me-2"></i>View Order Details
+                </a>
+                {% if request.user.is_authenticated %}
+                <a href="/account/" class="btn btn-secondary btn-lg rounded-pill px-5 fw-medium">
+                    <i class="fa-solid fa-user me-2"></i>Go to Dashboard
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function copyOrderNumber() {
+    const orderNumber = document.getElementById('orderNumberText').textContent;
+    navigator.clipboard.writeText(orderNumber).then(function() {
+        const btn = event.currentTarget;
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check text-success"></i>';
+        setTimeout(function() {
+            btn.innerHTML = originalHTML;
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

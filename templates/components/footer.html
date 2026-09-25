@@ -1,0 +1,84 @@
+<footer class="py-5 mt-5" style="background-color: #3E2723; color: #D7CCC8;">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <h5 class="font-serif fw-bold mb-3 text-white">
+                    <i class="fas fa-book-open me-2" style="color: #D7CCC8;"></i> BookNest
+                </h5>
+                <p class="fst-italic mb-3" style="color: #D7CCC8;">Discover your next great read.</p>
+                <p class="small mb-4" style="color: #BCAAA4;">
+                    BookNest is a modern bookstore offering a curated collection of timeless classics, contemporary fiction, and enlightening non-fiction for every kind of reader.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="#" class="text-decoration-none" style="color: #D7CCC8;" aria-label="Facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-decoration-none" style="color: #D7CCC8;" aria-label="Twitter">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-decoration-none" style="color: #D7CCC8;" aria-label="Instagram">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="text-decoration-none" style="color: #D7CCC8;" aria-label="LinkedIn">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                    <a href="#" class="text-decoration-none" style="color: #D7CCC8;" aria-label="YouTube">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <h6 class="fw-bold mb-3 text-white text-uppercase small">Quick Links</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="/" class="text-decoration-none" style="color: #D7CCC8;">Home</a></li>
+                    <li class="mb-2"><a href="/books/" class="text-decoration-none" style="color: #D7CCC8;">Books</a></li>
+                    <li class="mb-2"><a href="/books/?filter=bestsellers" class="text-decoration-none" style="color: #D7CCC8;">Best Sellers</a></li>
+                    <li class="mb-2"><a href="/books/?filter=new" class="text-decoration-none" style="color: #D7CCC8;">New Arrivals</a></li>
+                    <li class="mb-2"><a href="/about/" class="text-decoration-none" style="color: #D7CCC8;">About</a></li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <h6 class="fw-bold mb-3 text-white text-uppercase small">Categories</h6>
+                <ul class="list-unstyled small">
+                    {% for category in all_categories|slice:":8" %}
+                        <li class="mb-2">
+                            <a href="/books/?category={{ category.slug }}" class="text-decoration-none" style="color: #D7CCC8;">{{ category.name }}</a>
+                        </li>
+                    {% endfor %}
+                    <li class="mb-2">
+                        <a href="/books/?category=all" class="text-decoration-none fw-medium" style="color: #FFE0B2;">
+                            <i class="fas fa-arrow-right me-1" style="font-size: 0.75rem;"></i> View All Categories
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="col-lg-3 col-md-6 col-sm-12">
+                <h6 class="fw-bold mb-3 text-white text-uppercase small">Customer Service</h6>
+                <ul class="list-unstyled small">
+                    <li class="mb-2"><a href="/contact/" class="text-decoration-none" style="color: #D7CCC8;">Contact Us</a></li>
+                    <li class="mb-2"><a href="/faqs/" class="text-decoration-none" style="color: #D7CCC8;">FAQs</a></li>
+                    <li class="mb-2"><a href="/shipping/" class="text-decoration-none" style="color: #D7CCC8;">Shipping Info</a></li>
+                    <li class="mb-2"><a href="/returns/" class="text-decoration-none" style="color: #D7CCC8;">Returns</a></li>
+                    <li class="mb-2"><a href="/privacy/" class="text-decoration-none" style="color: #D7CCC8;">Privacy Policy</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <hr class="my-4" style="border-color: rgba(215, 204, 200, 0.2);">
+
+        <div class="row align-items-center">
+            <div class="col-md-6 small">
+                <p class="mb-0" style="color: #BCAAA4;">
+                    Copyright &copy; {{ current_year }} BookNest. All rights reserved.
+                </p>
+            </div>
+            <div class="col-md-6 text-md-end small mt-2 mt-md-0">
+                <a href="/privacy/" class="text-decoration-none me-3" style="color: #BCAAA4;">Privacy Policy</a>
+                <a href="/terms/" class="text-decoration-none" style="color: #BCAAA4;">Terms &amp; Conditions</a>
+            </div>
+        </div>
+    </div>
+</footer>

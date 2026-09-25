@@ -1,0 +1,291 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}BookNest - Discover your next great read.{% endblock %}
+{% block og_title %}BookNest - Discover your next great read.{% endblock %}
+{% block description %}BookNest is your modern elegant bookstore offering a curated collection of fiction, non-fiction, and more. Discover your next great read from thousands of books.{% endblock %}
+{% block og_description %}BookNest is your modern elegant bookstore offering a curated collection of fiction, non-fiction, and more. Discover your next great read.{% endblock %}
+{% block og_image %}{% static 'images/og-home.jpg' %}{% endblock %}
+
+{% block content %}
+
+<section class="hero-section py-5 py-lg-7">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <small class="text-uppercase text-muted d-block mb-3 fw-semibold" style="letter-spacing: 2px;">Welcome to BookNest</small>
+                <h1 class="display-3 fw-bold mb-4" style="line-height: 1.1;">Find Your Next<br><span class="text-primary">Favorite Book</span></h1>
+                <p class="lead text-muted mb-5 pe-lg-4">Explore thousands of books from bestselling authors, timeless classics, and emerging writers. Your next literary adventure is just a page away.</p>
+                <div class="d-flex flex-wrap gap-3 mb-5">
+                    <a class="btn btn-primary btn-lg rounded-pill px-5 py-3" href="/books/">
+                        <i class="fas fa-book me-2"></i>Shop Books
+                    </a>
+                    <a class="btn btn-outline-primary btn-lg rounded-pill px-5 py-3" href="#categories">
+                        <i class="fas fa-list me-2"></i>Explore Categories
+                    </a>
+                </div>
+                <div class="d-flex flex-wrap gap-4">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 text-primary" style="font-size: 1.8rem;">
+                            <i class="fas fa-books"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4 mb-0">10k+</div>
+                            <small class="text-muted">Books</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 text-primary" style="font-size: 1.8rem;">
+                            <i class="fas fa-layer-group"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4 mb-0">50+</div>
+                            <small class="text-muted">Categories</small>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3 text-primary" style="font-size: 1.8rem;">
+                            <i class="fas fa-truck-fast"></i>
+                        </div>
+                        <div>
+                            <div class="fw-bold fs-4 mb-0">Free</div>
+                            <small class="text-muted">Shipping over $50</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative" style="min-height: 500px;">
+                    <div class="position-absolute" style="left: 0; top: 40px; transform: rotate(-8deg); z-index: 1;">
+                        <div class="shadow-lg rounded-3 overflow-hidden" style="width: 180px; height: 270px;">
+                            <img src="https://placehold.co/360x540/5D4037/FFF8F1?text=Fiction&font=playfair" alt="Fiction" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="position-absolute" style="left: 80px; top: 10px; transform: rotate(-4deg); z-index: 2;">
+                        <div class="shadow-lg rounded-3 overflow-hidden" style="width: 180px; height: 270px;">
+                            <img src="https://placehold.co/360x540/8D6E63/FFFFFF?text=Sci-Fi&font=playfair" alt="Sci-Fi" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="position-absolute" style="left: 170px; top: 0; transform: rotate(0deg); z-index: 3;">
+                        <div class="shadow-lg rounded-3 overflow-hidden" style="width: 190px; height: 285px;">
+                            <img src="https://placehold.co/380x570/3E2723/FFF8F1?text=The+Great+Novel&font=playfair" alt="The Great Novel" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="position-absolute" style="left: 280px; top: 20px; transform: rotate(4deg); z-index: 2;">
+                        <div class="shadow-lg rounded-3 overflow-hidden" style="width: 180px; height: 270px;">
+                            <img src="https://placehold.co/360x540/D7CCC8/5D4037?text=Programming&font=playfair" alt="Programming" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="position-absolute" style="left: 370px; top: 60px; transform: rotate(8deg); z-index: 1;">
+                        <div class="shadow-lg rounded-3 overflow-hidden" style="width: 180px; height: 270px;">
+                            <img src="https://placehold.co/360x540/6D4C41/FFF8F1?text=Self-Help&font=playfair" alt="Self-Help" class="w-100 h-100" style="object-fit: cover;">
+                        </div>
+                    </div>
+                    <div class="position-absolute row g-3" style="left: 20px; top: 310px; width: 520px;">
+                        <div class="col-4">
+                            <div class="shadow-sm rounded-2 overflow-hidden" style="aspect-ratio: 2/3;">
+                                <img src="https://placehold.co/200x300/A1887F/FFFFFF?text=Love+in+Paris&font=playfair" alt="Love in Paris" class="w-100 h-100" style="object-fit: cover;">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="shadow-sm rounded-2 overflow-hidden" style="aspect-ratio: 2/3;">
+                                <img src="https://placehold.co/200x300/4E342E/FFF8F1?text=Code+Masters&font=playfair" alt="Code Masters" class="w-100 h-100" style="object-fit: cover;">
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="shadow-sm rounded-2 overflow-hidden" style="aspect-ratio: 2/3;">
+                                <img src="https://placehold.co/200x300/BCAAA4/3E2723?text=Mystery+Lane&font=playfair" alt="Mystery Lane" class="w-100 h-100" style="object-fit: cover;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section" id="categories">
+    <div class="container">
+        <div class="section-title text-center mb-5">
+            <h2 class="mb-3">Browse by Category</h2>
+            <p class="text-muted mb-4">Pick your next adventure from our curated categories.</p>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-lg-5 g-4 mb-4">
+            {% for cat in featured_categories %}
+            <div class="col">
+                <a href="/books/category/{{ cat.slug }}/" class="category-card d-block h-100">
+                    <div class="category-icon">
+                        {% with name=cat.name|lower %}
+                            {% if 'fiction' in name %}<i class="fas fa-book"></i>
+                            {% elif 'sci' in name or 'science' in name %}<i class="fas fa-rocket"></i>
+                            {% elif 'romance' in name or 'love' in name %}<i class="fas fa-heart"></i>
+                            {% elif 'mystery' in name or 'thriller' in name %}<i class="fas fa-magnifying-glass"></i>
+                            {% elif 'programming' in name or 'tech' in name or 'computer' in name %}<i class="fas fa-code"></i>
+                            {% elif 'business' in name or 'economics' in name %}<i class="fas fa-chart-line"></i>
+                            {% elif 'self' in name or 'help' in name or 'develop' in name %}<i class="fas fa-lightbulb"></i>
+                            {% elif 'history' in name %}<i class="fas fa-landmark"></i>
+                            {% elif 'biography' in name %}<i class="fas fa-user"></i>
+                            {% elif 'children' in name or 'kids' in name or 'young' in name %}<i class="fas fa-child"></i>
+                            {% else %}<i class="fas fa-book-open"></i>{% endif %}
+                        {% endwith %}
+                    </div>
+                    <h6 class="mb-1 fw-bold">{{ cat.name }}</h6>
+                    <small class="text-muted">{{ cat.books.count }} books</small>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center">
+            <a class="btn btn-outline-primary rounded-pill px-5" href="/books/categories/">
+                View All Categories <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="section pt-0">
+    <div class="container">
+        <div class="section-title d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+            <div>
+                <h2 class="text-start mb-3">Best Sellers</h2>
+            </div>
+            <a class="btn btn-link text-primary text-decoration-none fw-semibold" href="/books/bestsellers/">
+                See all <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-4">
+            {% for book in best_sellers %}
+                <div class="col">
+                    {% include 'components/book_card.html' %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section pt-0">
+    <div class="container">
+        <div class="offer-banner">
+            <div class="row align-items-center g-4">
+                <div class="col-md-7 text-center text-md-start">
+                    <h2 class="text-white mb-2">Weekend Book Sale — Up to 30% Off</h2>
+                    <p class="text-white-50 mb-0">Hand-picked bestsellers at unbeatable prices. Limited time only!</p>
+                </div>
+                <div class="col-md-5 text-center text-md-end">
+                    <a class="btn btn-light btn-lg rounded-pill px-5 text-primary fw-semibold" href="/books/?filter=featured">
+                        <i class="fas fa-fire me-2"></i>Shop Now
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section pt-0">
+    <div class="container">
+        <div class="section-title d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+            <div>
+                <h2 class="text-start mb-3">New Arrivals</h2>
+            </div>
+            <a class="btn btn-link text-primary text-decoration-none fw-semibold" href="/books/new-arrivals/">
+                See all <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-4">
+            {% for book in new_arrivals %}
+                <div class="col">
+                    {% include 'components/book_card.html' %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+{% if on_sale %}
+<section class="section pt-0">
+    <div class="container">
+        <div class="section-title d-flex justify-content-between align-items-end mb-5 flex-wrap gap-3">
+            <div>
+                <h2 class="text-start mb-3">Great Deals on Books</h2>
+            </div>
+            <a class="btn btn-link text-primary text-decoration-none fw-semibold" href="/books/?filter=sale">
+                See all <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-4">
+            {% for book in on_sale %}
+                <div class="col">
+                    {% include 'components/book_card.html' %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section pt-0">
+    <div class="container">
+        <div class="newsletter-box">
+            <div class="row align-items-center g-4">
+                <div class="col-md-6">
+                    <h2 class="mb-1">Join our newsletter</h2>
+                    <p class="text-muted mb-0">Get book recommendations and exclusive offers.</p>
+                </div>
+                <div class="col-md-6">
+                    <form method="POST" action="/newsletter/subscribe/" class="d-flex gap-2 flex-wrap">
+                        {% csrf_token %}
+                        <input type="email" name="email" class="form-control rounded-pill flex-grow-1" placeholder="you@example.com" required>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 py-2">
+                            <i class="fas fa-paper-plane me-2"></i>Subscribe
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section pt-0">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="text-center p-4">
+                    <div class="text-primary mb-3" style="font-size: 2.5rem;">
+                        <i class="fas fa-truck-fast"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">Free Shipping</h6>
+                    <small class="text-muted d-block">On all orders over $50 nationwide</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="text-center p-4">
+                    <div class="text-primary mb-3" style="font-size: 2.5rem;">
+                        <i class="fas fa-lock"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">Secure Checkout</h6>
+                    <small class="text-muted d-block">100% secure payment processing</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="text-center p-4">
+                    <div class="text-primary mb-3" style="font-size: 2.5rem;">
+                        <i class="fas fa-rotate-left"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">30-Day Returns</h6>
+                    <small class="text-muted d-block">Easy returns within 30 days</small>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="text-center p-4">
+                    <div class="text-primary mb-3" style="font-size: 2.5rem;">
+                        <i class="fas fa-headphones"></i>
+                    </div>
+                    <h6 class="fw-bold mb-2">24/7 Support</h6>
+                    <small class="text-muted d-block">Friendly support team always here</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

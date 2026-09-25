@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Shopping Cart | BookNest{% endblock %}
+
+{% block content %}
+<section class="page-header bg-light py-5 mb-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Shopping Cart</li>
+            </ol>
+        </nav>
+        <h1 class="display-5 fw-bold">Shopping Cart</h1>
+    </div>
+</section>
+
+<div class="container pb-5">
+    {% if cart_items %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <div class="table-responsive">
+                        <table class="table table-borderless align-middle mb-0">
+                            <thead>
+                                <tr class="border-bottom">
+                                    <th class="ps-0 py-3 text-muted fw-medium">Product</th>
+                                    <th class="py-3 text-muted fw-medium">Price</th>
+                                    <th class="py-3 text-muted fw-medium text-center">Quantity</th>
+                                    <th class="py-3 text-muted fw-medium text-end">Subtotal</th>
+                                    <th class="py-3 text-end"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in cart_items %}
+                                <tr class="border-bottom">
+                                    <td class="ps-0 py-4">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="flex-shrink-0" style="width: 90px;">
+                                                <a href="/books/{{ item.book.slug }}/" class="d-block">
+                                                    {% if item.cover_image %}
+                                                    <img src="{{ item.cover_image.url }}" alt="{{ item.title }}" class="rounded shadow-sm w-100" style="aspect-ratio: 2/3; object-fit: cover;">
+                                                    {% else %}
+                                                    <img src="https://placehold.co/90x135/D7CCC8/5D4037?text=Book" alt="{{ item.title }}" class="rounded shadow-sm w-100" style="aspect-ratio: 2/3; object-fit: cover;">
+                                                    {% endif %}
+                                                </a>
+                                            </div>
+                                            <div class="flex-grow-1 min-w-0">
+                                                <h6 class="fw-bold mb-1 text-truncate">
+                                                    <a href="/books/{{ item.book.slug }}/" class="text-decoration-none" style="color: #3E2723;">{{ item.title }}</a>
+                                                </h6>
+                                                <small class="text-muted">by {{ item.book.author.name }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="py-4">
+                                        <span class="fw-medium">${{ item.price|floatformat:2 }}</span>
+                                    </td>
+                                    <td class="py-4">
+                                        <div class="d-flex align-items-center justify-content-center">
+                                            <form method="POST" action="{% url 'cart:cart_update' item.book_id %}" class="d-flex align-items-center gap-0">
+                                                {% csrf_token %}
+                                                <div class="input-group" style="width: 140px;">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm qty-decrease" data-target="qty-{{ item.book_id }}">
+                                                        <i class="fas fa-minus fa-xs"></i>
+                                                    </button>
+                                                    <input type="number" name="quantity" id="qty-{{ item.book_id }}" value="{{ item.quantity }}" min="1" max="{{ item.book.stock }}" class="form-control form-control-sm text-center border-start-0 border-end-0" style="background: #fff;">
+                                                    <button type="button" class="btn btn-outline-secondary btn-sm qty-increase" data-target="qty-{{ item.book_id }}" data-max="{{ item.book.stock }}">
+                                                        <i class="fas fa-plus fa-xs"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 text-end">
+                                        <span class="fw-bold text-primary">${{ item.subtotal|floatformat:2 }}</span>
+                                    </td>
+                                    <td class="py-4 text-end pe-0">
+                                        <form method="POST" action="{% url 'cart:cart_remove' item.book_id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-link text-muted text-decoration-none p-0" aria-label="Remove item" onclick="return confirm('Remove this item from cart?');">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-4 pt-3 flex-wrap gap-2">
+                        <a href="{% url 'books:book_list' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-1"></i> Continue Shopping
+                        </a>
+                        <form method="POST" action="{% url 'cart:cart_clear' %}" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Clear all items from cart?');">
+                                <i class="fas fa-trash me-1"></i> Clear Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card shadow-sm border-0 rounded-3 sticky-top" style="top: 1rem;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4">Order Summary</h5>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="fw-medium">${{ subtotal|floatformat:2 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">Shipping</span>
+                        {% if shipping > 0 %}
+                        <span class="fw-medium">${{ shipping|floatformat:2 }}</span>
+                        {% else %}
+                        <span class="fw-medium text-success">FREE</span>
+                        {% endif %}
+                    </div>
+                    <div class="alert alert-info py-2 px-3 mb-4 small" role="alert">
+                        <i class="fas fa-info-circle me-1"></i>
+                        {% if subtotal >= free_shipping_threshold %}
+                        You qualify for free shipping!
+                        {% else %}
+                        Add <strong>${{ shipping_saving|floatformat:2 }}</strong> more for free shipping!
+                        {% endif %}
+                    </div>
+                    <hr class="my-3">
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold fs-5">Total</span>
+                        <span class="fw-bold fs-5 text-primary">${{ total|floatformat:2 }}</span>
+                    </div>
+                    <a href="/orders/checkout/" class="btn btn-primary btn-lg w-100 rounded-pill mb-3">
+                        Proceed to Checkout
+                        <i class="fas fa-arrow-right ms-1"></i>
+                    </a>
+                    <a href="{% url 'books:book_list' %}" class="btn btn-link text-decoration-none w-100">
+                        Continue Shopping
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <div class="mb-4">
+            <div class="d-inline-flex align-items-center justify-content-center rounded-circle bg-light" style="width: 140px; height: 140px;">
+                <i class="fas fa-shopping-cart display-3 text-muted"></i>
+            </div>
+        </div>
+        <h2 class="h3 fw-bold mb-2">Your cart is empty</h2>
+        <p class="text-muted mb-5 col-md-5 mx-auto">Looks like you haven't added any books to your cart yet. Start browsing our collection and find your next great read!</p>
+        <a href="{% url 'books:book_list' %}" class="btn btn-primary btn-lg rounded-pill px-5">
+            <i class="fas fa-book-open me-2"></i> Continue Shopping
+        </a>
+    </div>
+
+    <section class="mt-5 pt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="h4 fw-bold">Featured Books</h3>
+            <a href="{% url 'books:featured' %}" class="btn btn-link text-decoration-none text-primary fw-medium">
+                View All <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+        {% if featured_books %}
+        <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-4">
+            {% for book in featured_books %}
+                {% include 'components/book_card.html' %}
+            {% endfor %}
+        </div>
+        {% endif %}
+    </section>
+    {% endif %}
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.qty-decrease').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var target = document.getElementById(this.dataset.target);
+            var form = this.closest('form');
+            if (parseInt(target.value) > 1) {
+                target.value = parseInt(target.value) - 1;
+                form.submit();
+            }
+        });
+    });
+
+    document.querySelectorAll('.qty-increase').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var target = document.getElementById(this.dataset.target);
+            var form = this.closest('form');
+            var max = parseInt(this.dataset.max) || 999;
+            if (parseInt(target.value) < max) {
+                target.value = parseInt(target.value) + 1;
+                form.submit();
+            }
+        });
+    });
+
+    document.querySelectorAll('input[name="quantity"]').forEach(function(input) {
+        input.addEventListener('change', function() {
+            var form = this.closest('form');
+            var max = parseInt(this.max) || 999;
+            if (this.value < 1) this.value = 1;
+            if (this.value > max) this.value = max;
+            form.submit();
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %}
