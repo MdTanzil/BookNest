@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+
+{% block title %}Books | {{ site_name }}{% endblock %}
+
+{% block content %}
+<section class="page-header bg-light py-5 mb-4">
+    <div class="container">
+        <!-- Breadcrumb Navigation Links -->
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-3">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'books:book_list' %}">Books</a></li>
+                <li class="breadcrumb-item active" aria-current="page">Featured Books</li>
+            </ol>
+        </nav>
+        
+        <!-- Header Dynamic Titles -->
+        <h1 class="display-5 fw-bold">Featured Masterpieces</h1>
+        <p class="lead text-muted mt-2">Explore our handpicked curation of exceptional, top-tier stories chosen just for you.</p>
+    </div>
+</section>
+
+<!-- Main Products Collection Display Layout Section -->
+<div class="container my-5">
+    {% if featured_books %}
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+            {% for book in featured_books %}
+                <div class="col">
+                    <div class="card h-100 shadow-sm position-relative border-0 rounded-3 overflow-hidden">
+                        
+                        <!-- Sale Badge Flag Indicator Overlay -->
+                        {% if book.is_on_sale %}
+                            <span class="badge bg-danger position-absolute top-0 start-0 m-3 px-3 py-2 rounded-pill fw-semibold shadow-sm z-1">
+                                Save {{ book.discount_percent }}%
+                            </span>
+                        {% endif %}
+
+                        <!-- Product Thumbnail Image Frame Layout Block -->
+                        <div class="bg-light text-center py-4 px-3 position-relative" style="height: 260px; display: flex; align-items: center; justify-content: center;">
+                            {% if book.cover_image %}
+                                <img src="{{ book.cover_image.url }}" alt="{{ book.title }}" class="img-fluid shadow" style="max-height: 220px; object-fit: contain;">
+                            {% else %}
+                                <div class="text-muted d-flex flex-column align-items-center">
+                                    <i class="fa-solid fa-book fa-3x mb-2 opacity-50"></i>
+                                    <small class="text-uppercase tracking-wider fw-bold" style="font-size: 0.7rem;">No Cover</small>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Card Body Descriptions and Parameters Matrix -->
+                        <div class="card-body d-flex flex-column p-4">
+                            <!-- Category Metadata Reference Tag -->
+                            <span class="text-primary text-uppercase tracking-wider fw-bold mb-1" style="font-size: 0.75rem;">
+                                {{ book.category.name }}
+                            </span>
+                            
+                            <!-- Book Title Title heading Routing Element Link -->
+                            <h5 class="card-title fw-bold text-dark mb-1 text-truncate">
+                                <a href="{% url 'books:book_detail' book.slug %}" class="text-decoration-none text-dark stretched-link position-relative">
+                                    {{ book.title }}
+                                </a>
+                            </h5>
+                            
+                            <!-- Author Associated Meta Description Text Row -->
+                            <p class="text-secondary mb-3 small">by <span class="fst-italic text-dark">{{ book.author.name }}</span></p>
+
+                            <!-- Star Average Ratings Verification Indicator Block Element -->
+                            <div class="d-flex align-items-center mb-3 mt-auto">
+                                <div class="text-warning me-2 small">
+                                    <i class="fa-solid fa-star"></i>
+                                    <span class="fw-bold text-dark ms-1">{{ book.average_rating }}</span>
+                                </div>
+                                <span class="text-muted small">({{ book.pages }} pages)</span>
+                            </div>
+
+                            <!-- Pricing Matrix Calculations Evaluator Segment Display Block -->
+                            <div class="d-flex align-items-baseline mb-3">
+                                {% if book.is_on_sale %}
+                                    <span class="h4 fw-extrabold text-danger mb-0 me-2">${{ book.discount_price }}</span>
+                                    <span class="text-muted text-decoration-line-through small">${{ book.price }}</span>
+                                {% else %}
+                                    <span class="h4 fw-extrabold text-dark mb-0">${{ book.price }}</span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Interactive Call To Action Purchase Function Trigger Form Interface Button -->
+                            <div class="mt-2 position-relative z-2">
+                                {% if book.is_available %}
+                                    <form action="{% url 'cart:cart_add' book.id %}" method="POST" class="d-inline w-100">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="quantity" value="1">
+                                        <button type="submit" class="btn btn-outline-primary btn-sm w-100 py-2 rounded-2 fw-semibold d-flex align-items-center justify-content-center gap-2">
+                                            <i class="fa-solid fa-cart-shopping small"></i> Add to Cart
+                                        </button>
+                                    </form>
+                                {% else %}
+                                    <button class="btn btn-light btn-sm w-100 py-2 rounded-2 fw-semibold text-muted border" disabled>
+                                        <i class="fa-solid fa-ban small"></i> Out of Stock
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <!-- Dynamic Django Page Pagination Indicator Controller Block -->
+        {% if is_paginated %}
+            <nav aria-label="Featured book pagination matrix control" class="d-flex justify-content-center mt-5">
+                <ul class="pagination pagination-md shadow-sm rounded-3">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link px-3 py-2 text-dark" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                                <i class="fa-solid fa-angle-left"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+
+                    {% for num in page_obj.paginator.page_range %}
+                        <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                            <a class="page-link px-3 py-2 {% if page_obj.number == num %}bg-primary border-primary text-white{% else %}text-dark{% endif %}" href="?page={{ num }}">
+                                {{ num }}
+                            </a>
+                        </li>
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link px-3 py-2 text-dark" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                                <i class="fa-solid fa-angle-right"></i>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        {% endif %}
+
+    {% else %}
+        <!-- Empty Database State Notification Element Layout Canvas Box -->
+        <div class="text-center py-5 border rounded-3 bg-white shadow-sm my-5">
+            <div class="text-muted mb-3">
+                <i class="fa-solid fa-bookmark fa-4x opacity-20"></i>
+            </div>
+            <h3 class="fw-bold text-dark">No Featured Books Found</h3>
+            <p class="text-secondary max-width-500 mx-auto px-3">We are currently updating our collection index shelf. Check back soon or browse our other main library titles!</p>
+            <a href="{% url 'books:book_list' %}" class="btn btn-primary px-4 py-2 mt-2 rounded-pill fw-semibold shadow-sm">
+                Browse Main Catalog
+            </a>
+        </div>
+    {% endif %}
+</div>
+
+
+
+{% endblock %}

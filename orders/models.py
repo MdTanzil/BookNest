@@ -83,4 +83,6 @@ class OrderItem(models.Model):
 
     @property
     def total(self):
-        return self.quantity * self.price
+        qty = self.quantity or 0
+        prc = self.price or 0
+        return qty * prc

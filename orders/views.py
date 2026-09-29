@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.http import HttpResponse
 from django.utils import timezone
 from django.db import transaction
 from django.core.paginator import Paginator
@@ -13,6 +14,8 @@ from django.conf import settings
 import uuid
 import string
 import random
+from .utils import generate_shipping_label ,generate_customer_receipt
+from django.contrib.admin.views.decorators import staff_member_required
 
 
 def generate_order_number():
@@ -119,8 +122,45 @@ def order_list(request):
 def order_detail(request, order_number):
     order = get_object_or_404(Order, order_number=order_number, user=request.user)
     items = order.items.select_related('book')
+     # Mirror the exact tracking steps expected by your template
+    steps = 'Pending,Confirmed,Processing,Shipped,Delivered'
+    
+    # Pre-split the string into a clean list using Python
+    steps_list = [step.strip() for step in steps.split(',')]
     context = {
         'order': order,
         'items': items,
+        'steps': steps,          # Satisfies your template variables
+        'steps_list': steps_list, 
     }
     return render(request, 'orders/order_detail.html', context)
+
+
+@staff_member_required
+def print_delivery_label(request, order_number):
+    """
+    Minimal staff-only view wrapper that returns the streaming PDF binary response.
+    """
+    order = get_object_or_404(Order, order_number=order_number)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="delivery_label_{order.order_number}.pdf"'
+    
+    # Run the PDF processing script engine
+    generate_shipping_label(response, order)
+    return response
+
+@staff_member_required
+def print_customer_receipt(request, order_number):
+    """
+    Staff-only view wrapper that handles streaming A4 printable client receipt logs.
+    """
+    order = get_object_or_404(Order, order_number=order_number)
+    # Pre-fetch order line items alongside book properties to optimize SQL load performance
+    items = order.items.select_related('book')
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="receipt_{order.order_number}.pdf"'
+    
+    generate_customer_receipt(response, order, items)
+    return response

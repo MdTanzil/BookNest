@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     #Test App
     # 'django_seed',
     # 'autofixture',
+    'mathfilters',
 ]
 
 SITE_ID = 1

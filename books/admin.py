@@ -31,8 +31,7 @@ class BookAdmin(admin.ModelAdmin):
         'new_arrival', 'average_rating'
     ]
     list_editable = [
-        'bestseller', 'featured', 'new_arrival',
-        'price', 'discount_price', 'stock'
+        'bestseller', 'featured', 'new_arrival', 'stock'
     ]
     list_filter = [
         'category', 'format', 'language', 'bestseller',

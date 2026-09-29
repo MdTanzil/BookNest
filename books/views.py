@@ -385,3 +385,13 @@ class AuthorListView(ListView):
         qs = super().get_queryset()
         qs = qs.annotate(book_count=Count('books'))
         return qs
+
+class FeaturedBookListView(ListView):
+    model = Book
+    template_name = 'books/featured_books.html'
+    context_object_name = 'featured_books'
+    paginate_by = 12  # Displays 12 books per page clean layout grid
+
+    def get_queryset(self):
+        # Grabs only books where featured flag is checked true
+        return Book.objects.filter(featured=True).select_related('author', 'category')
