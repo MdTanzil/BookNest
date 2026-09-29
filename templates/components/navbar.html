@@ -85,7 +85,7 @@
                             <li><a class="dropdown-item" href="/account/password/change/"><i class="fas fa-lock me-2 text-secondary"></i> Change Password</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
-                                <form method="POST" action="{% url 'account_logout' %}" class="m-0">
+                                <form method="POST" action="{% url 'accounts:logout' %}" class="m-0">
                                     {% csrf_token %}
                                     <button type="submit" class="dropdown-item text-danger">
                                         <i class="fas fa-sign-out-alt me-2"></i> Logout

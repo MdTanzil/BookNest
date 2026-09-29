@@ -35,6 +35,10 @@ INSTALLED_APPS = [
     'orders',
     'wishlist',
     'reviews',
+
+    #Test App
+    # 'django_seed',
+    # 'autofixture',
 ]
 
 SITE_ID = 1

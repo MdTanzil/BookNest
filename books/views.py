@@ -17,7 +17,7 @@ class BookListView(ListView):
         qs = Book.objects.select_related('author', 'category').prefetch_related('images', 'reviews')
 
         qs = qs.annotate(
-            final_price=Case(
+            calculated_price=Case(
                 When(discount_price__isnull=False, then=F('discount_price')),
                 default=F('price'),
                 output_field=DecimalField(max_digits=10, decimal_places=2),

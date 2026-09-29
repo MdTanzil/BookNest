@@ -143,7 +143,7 @@
             </div>
 
             <div class="d-flex gap-2 flex-wrap mb-3">
-                <form id="cart-form" method="post" action="{% url 'cart:add_to_cart' book.id %}" class="d-flex gap-2">
+                <form id="cart-form" method="post" action="{% url 'cart:cart_add' book.id %}" class="d-flex gap-2">
                     {% csrf_token %}
                     <input type="hidden" id="buy-now-field" name="buy_now" value="0">
                     <input type="hidden" name="quantity" value="1" id="qty-hidden">
@@ -155,7 +155,7 @@
                     </button>
                 </form>
                 {% if user.is_authenticated %}
-                <form method="post" action="{% url 'wishlist:add_to_wishlist' book.id %}">
+                <form method="post" action="{% url 'wishlist:wishlist_add' book.id %}">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-danger btn-lg {% if in_wishlist %}active{% endif %}">
                         <i class="bi {% if in_wishlist %}bi-heart-fill{% else %}bi-heart{% endif %} me-2"></i>
@@ -263,7 +263,7 @@
                                         <h5 class="mb-0">Write a Review</h5>
                                     </div>
                                     <div class="card-body">
-                                        <form method="post" action="{% url 'reviews:create_review' book.slug %}">
+                                        <form method="post" action="{% url 'reviews:review_add' book.id %}">
                                             {% csrf_token %}
                                             <div class="mb-3">
                                                 <label class="form-label fw-medium">Your Rating</label>

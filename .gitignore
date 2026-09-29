@@ -30,3 +30,4 @@ Thumbs.db
 
 # Do NOT ignore the __init__.py files (Django needs these to recognize migration folders)
 !**/migrations/__init__.py
+DevNote.txt
