@@ -57,12 +57,12 @@ class BookListView(ListView):
         max_price = self.request.GET.get('max_price')
         if min_price:
             try:
-                qs = qs.filter(final_price__gte=float(min_price))
+                qs = qs.filter(calculated_price__gte=float(min_price))
             except (ValueError, TypeError):
                 pass
         if max_price:
             try:
-                qs = qs.filter(final_price__lte=float(max_price))
+                qs = qs.filter(calculated_price__lte=float(max_price))
             except (ValueError, TypeError):
                 pass
 
@@ -83,9 +83,9 @@ class BookListView(ListView):
         elif sort == 'newest':
             qs = qs.order_by('-created_at')
         elif sort == 'price-asc':
-            qs = qs.order_by('final_price')
+            qs = qs.order_by('calculated_price')
         elif sort == 'price-desc':
-            qs = qs.order_by('-final_price')
+            qs = qs.order_by('-calculated_price')
         elif sort == 'rating':
             qs = qs.order_by('-average_rating')
 
@@ -93,7 +93,7 @@ class BookListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['all_categories'] = Category.objects.all()
+        context['all_categories'] = Category.objects.annotate(book_count=Count('books'))
         context['all_authors'] = Author.objects.all()
 
         all_prices = Book.objects.annotate(
@@ -173,7 +173,7 @@ class CategoryBooksView(ListView):
         qs = qs.filter(category=self.category)
 
         qs = qs.annotate(
-            final_price=Case(
+            calculated_price=Case(
                 When(discount_price__isnull=False, then=F('discount_price')),
                 default=F('price'),
                 output_field=DecimalField(max_digits=10, decimal_places=2),
@@ -197,12 +197,12 @@ class CategoryBooksView(ListView):
         max_price = self.request.GET.get('max_price')
         if min_price:
             try:
-                qs = qs.filter(final_price__gte=float(min_price))
+                qs = qs.filter(calculated_price__gte=float(min_price))
             except (ValueError, TypeError):
                 pass
         if max_price:
             try:
-                qs = qs.filter(final_price__lte=float(max_price))
+                qs = qs.filter(calculated_price__lte=float(max_price))
             except (ValueError, TypeError):
                 pass
 
@@ -223,9 +223,9 @@ class CategoryBooksView(ListView):
         elif sort == 'newest':
             qs = qs.order_by('-created_at')
         elif sort == 'price-asc':
-            qs = qs.order_by('final_price')
+            qs = qs.order_by('calculated_price')
         elif sort == 'price-desc':
-            qs = qs.order_by('-final_price')
+            qs = qs.order_by('-calculated_price')
         elif sort == 'rating':
             qs = qs.order_by('-average_rating')
 
@@ -234,7 +234,7 @@ class CategoryBooksView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
-        context['all_categories'] = Category.objects.all()
+        context['all_categories'] = Category.objects.annotate(book_count=Count('books'))
         context['all_authors'] = Author.objects.all()
 
         cat_books = Book.objects.filter(category=self.category).annotate(
@@ -274,7 +274,7 @@ class AuthorBooksView(ListView):
         qs = qs.filter(author=self.author)
 
         qs = qs.annotate(
-            final_price=Case(
+            calculated_price=Case(
                 When(discount_price__isnull=False, then=F('discount_price')),
                 default=F('price'),
                 output_field=DecimalField(max_digits=10, decimal_places=2),
@@ -298,12 +298,12 @@ class AuthorBooksView(ListView):
         max_price = self.request.GET.get('max_price')
         if min_price:
             try:
-                qs = qs.filter(final_price__gte=float(min_price))
+                qs = qs.filter(calculated_price__gte=float(min_price))
             except (ValueError, TypeError):
                 pass
         if max_price:
             try:
-                qs = qs.filter(final_price__lte=float(max_price))
+                qs = qs.filter(calculated_price__lte=float(max_price))
             except (ValueError, TypeError):
                 pass
 
@@ -324,9 +324,9 @@ class AuthorBooksView(ListView):
         elif sort == 'newest':
             qs = qs.order_by('-created_at')
         elif sort == 'price-asc':
-            qs = qs.order_by('final_price')
+            qs = qs.order_by('calculated_price')
         elif sort == 'price-desc':
-            qs = qs.order_by('-final_price')
+            qs = qs.order_by('-calculated_price')
         elif sort == 'rating':
             qs = qs.order_by('-average_rating')
 
@@ -335,7 +335,7 @@ class AuthorBooksView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['author'] = self.author
-        context['all_categories'] = Category.objects.all()
+        context['all_categories'] = Category.objects.annotate(book_count=Count('books'))
         context['all_authors'] = Author.objects.all()
 
         auth_books = Book.objects.filter(author=self.author).annotate(

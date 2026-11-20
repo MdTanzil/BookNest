@@ -25,14 +25,14 @@
                             <li><a class="dropdown-item" href="/books/?category={{ category.slug }}">{{ category.name }}</a></li>
                         {% endfor %}
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item fw-medium text-primary" href="/books/?category=all">See All Categories</a></li>
+                        <li><a class="dropdown-item fw-medium text-primary" href="/books/categories/">See All Categories</a></li>
                     </ul>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link fw-medium" href="/books/?filter=bestsellers">Best Sellers</a>
+                    <a class="nav-link fw-medium" href="/books/bestsellers/">Best Sellers</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link fw-medium" href="/books/?filter=new">New Arrivals</a>
+                    <a class="nav-link fw-medium" href="/books/new-arrivals/">New Arrivals</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link fw-medium" href="/about/">About</a>
@@ -79,10 +79,10 @@
                         <ul class="dropdown-menu dropdown-menu-end border-0 shadow-sm rounded-3" aria-labelledby="userDropdown">
                             <li><h6 class="dropdown-header fw-medium">Hello, {{ user.get_short_name|default:user.username }}</h6></li>
                             <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item" href="/account/"><i class="fas fa-user-circle me-2 text-secondary"></i> Dashboard</a></li>
-                            <li><a class="dropdown-item" href="/account/orders/"><i class="fas fa-box me-2 text-secondary"></i> Orders</a></li>
+                            <li><a class="dropdown-item" href="/accounts/profile/"><i class="fas fa-user-circle me-2 text-secondary"></i> Dashboard</a></li>
+                            <li><a class="dropdown-item" href="/orders/orders/"><i class="fas fa-box me-2 text-secondary"></i> Orders</a></li>
                             <li><a class="dropdown-item" href="/wishlist/"><i class="far fa-heart me-2 text-secondary"></i> Wishlist</a></li>
-                            <li><a class="dropdown-item" href="/account/password/change/"><i class="fas fa-lock me-2 text-secondary"></i> Change Password</a></li>
+                            <li><a class="dropdown-item" href="/accounts/password/change/"><i class="fas fa-lock me-2 text-secondary"></i> Change Password</a></li>
                             <li><hr class="dropdown-divider"></li>
                             <li>
                                 <form method="POST" action="{% url 'accounts:logout' %}" class="m-0">
@@ -99,7 +99,7 @@
                         <a href="/accounts/login/" class="btn btn-outline-primary btn-sm rounded-pill px-3">Login</a>
                     </li>
                     <li class="nav-item ms-1">
-                        <a href="/accounts/signup/" class="btn btn-primary btn-sm rounded-pill px-3">Register</a>
+                        <a href="/accounts/register/" class="btn btn-primary btn-sm rounded-pill px-3">Register</a>
                     </li>
                 {% endif %}
             </ul>

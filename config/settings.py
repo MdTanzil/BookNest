@@ -98,6 +98,11 @@ if os.environ.get('DATABASE_URL'):
             'HOST': url.hostname,
             'PORT': url.port or '',
             'OPTIONS': {'sslmode': query.get('sslmode', ['prefer'])[0]},
+            # Reuse connections on warm serverless instances instead of
+            # opening a new one per request (slow against hosted Postgres).
+            # Health checks drop connections the database has closed.
+            'CONN_MAX_AGE': 600,
+            'CONN_HEALTH_CHECKS': True,
         }
     }
 else:

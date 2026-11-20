@@ -76,52 +76,23 @@ Follow these instructions to set up the development environment locally on your 
 
 ---
 
-## ☁️ Deploy to Vercel (demo)
+## 🔐 Environment variables
 
-Vercel detects this Django project automatically (via `manage.py` and `WSGI_APPLICATION`).
-The only thing it needs from you is a PostgreSQL database, because SQLite does not
-work on Vercel's read-only serverless filesystem.
+Copy `.env.example` to `.env` and fill in the values you need:
 
-### 1. Create a free database
-
-Create a free project at [Neon](https://neon.tech) (or Supabase) and copy its
-connection string. It looks like:
-
-```
-postgres://user:password@ep-xxxx.us-east-2.aws.neon.tech:5432/neondb?sslmode=require
+```bash
+cp .env.example .env
 ```
 
-### 2. Import the repo in Vercel
+| Variable | Required | Default | What it does |
+|---|---|---|---|
+| `DJANGO_SECRET_KEY` | Yes, in production | Dev-only insecure default | Signs sessions, CSRF tokens and password-reset links. Generate a long random value for any real deployment. |
+| `DJANGO_DEBUG` | No | `True` | `True` shows detailed error pages locally; always set `False` in production. |
+| `ALLOWED_HOSTS` | No | `.vercel.app,localhost,127.0.0.1` | Comma-separated hostnames allowed to serve the site when `DEBUG` is `False`. |
+| `CSRF_TRUSTED_ORIGINS` | No | `https://*.vercel.app` | Comma-separated origins allowed to POST forms over HTTPS. Narrow it to your exact domain in production. |
+| `DATABASE_URL` | No | (SQLite fallback) | PostgreSQL connection string. When set, the app uses Postgres; otherwise it uses the local `db.sqlite3` file. |
 
-Import `MdTanzil/BookNest` at [vercel.com/new](https://vercel.com/new) and set
-these environment variables (Production):
-
-| Variable | Value |
-|---|---|
-| `DATABASE_URL` | Your Neon connection string from step 1 |
-| `DJANGO_SECRET_KEY` | A long random string (generate one, never reuse the dev default) |
-| `DJANGO_DEBUG` | `False` |
-| `ALLOWED_HOSTS` | Your Vercel domain, e.g. `booknest.vercel.app` |
-| `CSRF_TRUSTED_ORIGINS` | `https://booknest.vercel.app` (optional — defaults to `https://*.vercel.app`) |
-
-### 3. Deploy
-
-On every deploy, `build.py` runs automatically: it generates migrations
-(they are not committed to the repo), applies them to the database, collects
-static files, and seeds 15 demo books if the catalog is empty. Static files
-are served from Vercel's CDN; uploaded media (book covers) is served by
-WhiteNoise from the app itself.
-
-### Demo limitations
-
-- **Uploads don't persist.** Files uploaded through the admin (e.g. a new book
-  cover) disappear on the next deploy, because the serverless filesystem is
-  ephemeral. The seeded demo covers are bundled with the deployment, so they
-  keep working.
-- **Password-reset emails don't send.** The email backend is console-only, so
-  reset emails go to the deployment logs instead of an inbox.
-- **Redeploys never wipe your catalog.** Seeding only runs when the catalog is
-  empty (`seed_books --if-empty`).
+`.env` is git-ignored — never commit it.
 
 ---
 

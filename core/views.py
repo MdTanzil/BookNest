@@ -1,6 +1,7 @@
 from django.views.generic import TemplateView, ListView
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.db.models import Count
 from django.http import HttpResponse, HttpResponseNotFound, HttpResponseForbidden, HttpResponseServerError
 from books.models import Book, Category, Author
 from django.core.mail import send_mail
@@ -14,7 +15,7 @@ class HomePageView(TemplateView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
-        ctx['featured_categories'] = Category.objects.all()[:9]
+        ctx['featured_categories'] = Category.objects.annotate(book_count=Count('books'))[:9]
         ctx['best_sellers'] = Book.objects.filter(bestseller=True, stock__gt=0).select_related('author', 'category').prefetch_related('reviews')[:8]
         ctx['new_arrivals'] = Book.objects.filter(new_arrival=True, stock__gt=0).select_related('author', 'category').order_by('-created_at')[:8]
         ctx['featured_books'] = Book.objects.filter(featured=True, stock__gt=0).select_related('author', 'category')[:8]

@@ -61,7 +61,7 @@
                                         {% if cat.slug in current_filters.category or category and cat.slug == category.slug %}checked{% endif %}>
                                     <label class="form-check-label d-flex justify-content-between" for="cat-{{ cat.slug }}">
                                         <span>{{ cat.name }}</span>
-                                        <small class="text-muted">({{ cat.books.count }})</small>
+                                        <small class="text-muted">({{ cat.book_count }})</small>
                                     </label>
                                 </div>
                                 {% endfor %}
