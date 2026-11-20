@@ -1,0 +1,15 @@
+name: Keep demo awake
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the live demo
+        run: |
+          curl -fsS --max-time 60 https://book-nest-nu-ruby.vercel.app/ > /dev/null
+          echo "Demo is awake ($(date -u +%FT%TZ))"
