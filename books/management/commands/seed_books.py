@@ -75,10 +75,19 @@ class Command(BaseCommand):
             default=15,
             help='The total count of items to seed per model'
         )
+        parser.add_argument(
+            '--if-empty',
+            action='store_true',
+            help='Only seed when the catalog has no books yet (safe to run on every deploy)'
+        )
 
     def handle(self, *args, **options):
         count = options['count']
-        
+
+        if options['if_empty'] and Book.objects.exists():
+            self.stdout.write("Books already exist, skipping seed.")
+            return
+
         self.stdout.write(self.style.WARNING("Flushing existing book database entries..."))
         BookImage.objects.all().delete()
         Book.objects.all().delete()

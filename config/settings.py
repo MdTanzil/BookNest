@@ -1,4 +1,5 @@
 import os
+import urllib.parse
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -13,7 +14,12 @@ SECRET_KEY = os.environ.get(
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ['*'] if DEBUG else os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = ['*'] if DEBUG else os.environ.get('ALLOWED_HOSTS', '.vercel.app,localhost,127.0.0.1').split(',')
+
+# Origins allowed to POST forms (login, checkout, reviews) over HTTPS.
+# Defaults to any Vercel subdomain so the demo works out of the box; narrow
+# it to the exact domain in production, e.g. CSRF_TRUSTED_ORIGINS=https://booknest.vercel.app
+CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://*.vercel.app').split(',') if o]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -78,12 +84,30 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.environ.get('DATABASE_URL'):
+    # Production (Vercel): PostgreSQL, e.g. a free Neon database.
+    # The URL may carry ?sslmode=require; pass it through to psycopg2.
+    url = urllib.parse.urlparse(os.environ['DATABASE_URL'])
+    query = urllib.parse.parse_qs(url.query)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': url.path.lstrip('/'),
+            'USER': urllib.parse.unquote(url.username or ''),
+            'PASSWORD': urllib.parse.unquote(url.password or ''),
+            'HOST': url.hostname,
+            'PORT': url.port or '',
+            'OPTIONS': {'sslmode': query.get('sslmode', ['prefer'])[0]},
+        }
     }
-}
+else:
+    # Local development falls back to SQLite.
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -128,3 +152,11 @@ SHIPPING_COST = 5.99
 FREE_SHIPPING_THRESHOLD = 50.00
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
+# Behind Vercel's proxy, Django must trust X-Forwarded-Proto to know the
+# request arrived over HTTPS (affects CSRF, sessions and absolute URLs).
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
